@@ -50,7 +50,7 @@ Unit coverage includes: crypto round trips and tamper rejection, capability expi
 
 | Item | Status |
 |---|---|
-| GitHub source push | **BLOCKED** — connected integration is read-only; no push attempted with a PAT. Exact permission requirement recorded in `governance/CHECKPOINT.md`. |
+| GitHub source push | **BLOCKED** — `git push -u origin main` returned `remote: Permission to agentlee2116-ctrl/Leeway-Global-P2P.git denied to 4citeB4U.` and `error: 403`, exit 128. Local ready-to-publish commit `ca6eeb779052593f062ce2ae80fb9245e2c5c954` on `main`. No PAT requested in chat. |
 | GitHub Actions CI | Workflows authored (`build.yml`, `pages.yml`) but not executed remotely; remote CI status **NOT VERIFIED**. |
 | GitHub Pages | **NOT DEPLOYED** — requires repository write permission. |
 | QR code | `site/leeway-qr.png` generated locally; target URL `https://agentlee2116-ctrl.github.io/Leeway-Global-P2P/downloads/leeway-global-p2p-v1.0.0-release.apk`. Live target resolution **NOT VERIFIED** until Pages is live. |

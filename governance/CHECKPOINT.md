@@ -26,6 +26,9 @@ HOW: Governed source reusing LeeWay contracts; no competing authority; evidence-
 ## Open gates (unchanged from the original mission)
 
 1. GitHub write permission for the connected integration; push remains blocked until granted. No PAT requested in chat.
+   - Exact denial (recorded once): `git push -u origin main` → `remote: Permission to agentlee2116-ctrl/Leeway-Global-P2P.git denied to 4citeB4U.` / `The requested URL returned error: 403` / exit 128.
+   - Local ready-to-publish commit: `ca6eeb779052593f062ce2ae80fb9245e2c5c954` on branch `main`, remote `https://github.com/agentlee2116-ctrl/Leeway-Global-P2P.git`.
+   - No force-push and no alternate repository was used.
 2. Physical LeeWay Device Bridge mesh or authorized satellite adapter for real transmission.
 3. Two-device field messaging with signed ACKs.
 4. Independent production verification and governance admission (Veritas/receipts/Learning Ledger) — not claimed here.
