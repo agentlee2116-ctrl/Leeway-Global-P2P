@@ -21,9 +21,13 @@
   "dependencies": {
     "@capacitor/android": "^6.2.3",
     "@capacitor/core": "^6.2.3",
+    "@tailwindcss/vite": "^4.3.5",
+    "lucide-react": "^1.79.0",
+    "motion": "^14.14.0",
     "qrcode": "^1.5.4",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "tailwindcss": "^4.3.5",
     "ws": "^8.18.3"
   },
   "devDependencies": {

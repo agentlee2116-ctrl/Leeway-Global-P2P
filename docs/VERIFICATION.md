@@ -43,7 +43,7 @@ Unit coverage includes: crypto round trips and tamper rejection, capability expi
 - Package: `com.leeway.global.p2p`, versionCode 1, versionName 1.0, minSdk 22, targetSdk 34.
 - Permissions: `INTERNET`, `CAMERA`, `RECORD_AUDIO` (media requested only on explicit user action).
 - `apksigner verify --print-certs`: **verified**, signer DN `CN=LeeWay Global P2P, OU=LeeWay Ecosystem, O=LeeWay, L=Milwaukee, ST=WI, C=US`, certificate SHA-256 `24900d233d8e5b6f4a0d1355e59e60c95cf6e2bcd3f540f7c78ec27bbf924e7a`.
-- SHA-256: `6fb6c692325f53a0e92d48a4b37dc362ac4468e809e3bb91bcfc331d28c0d6ea` (see `release/SHA256SUMS.txt`).
+- SHA-256: `f451712d6e9730ec561dbeb965c5ca5af251a5e45a51b8f6a23112c42dbd565f` (see `release/SHA256SUMS.txt`). The APK was rebuilt after the corrected UI was integrated; signer identity is unchanged.
 - Signing key is stored outside the repository at `C:\Users\Leona\.leeway\release-keys\leeway-global-p2p.jks`; no private key or password is committed.
 
 ## 4. Deployment state

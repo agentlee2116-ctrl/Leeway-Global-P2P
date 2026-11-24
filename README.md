@@ -14,6 +14,10 @@ HOW: Governed source reusing LeeWay contracts; no competing authority; evidence-
 
 **Offline-first walkie-talkie dispatch for the LeeWay ecosystem.** One shared room, identity, circle and crypto model across **Android, iPhone/iOS, Windows, macOS, Linux and Web/PWA**.
 
+## UI
+
+The canonical UI is a device- and OS-agnostic React presentation layer (`src/App.tsx`, `src/components/`, `src/index.css`, `src/utils/`) with the Creator's logo, onboarding gates, walkie-talkie deck, dispatch cards, video snaps, language selection and security dashboard. It renders identically from GitHub Pages, a local browser, or a native wrapper; no drive path or local machine is part of its identity.
+
 ## What it does
 
 | Mode | Behaviour |

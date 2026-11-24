@@ -10,13 +10,12 @@ WHERE: agentlee2116-ctrl/Leeway-Global-P2P/src/main.tsx
 WHY: Offline-first LeeWay walkie-talkie dispatch for families across regions
 HOW: Governed source reusing LeeWay contracts; no competing authority; evidence-backed verification
 */
-import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
-import './styles.css';
+import './index.css';
+import { registerPwaUpdates } from './pwa-updates.ts';
 
-createRoot(document.getElementById('root')!).render(
-  <React.StrictMode><App /></React.StrictMode>,
-);
+createRoot(document.getElementById('root')!).render(<App />);
 
-/* Service worker registration is handled by registerPwaUpdates() in App. */
+/* PWA update detection stays outside the UI layer so the UI remains portable. */
+void registerPwaUpdates(() => {});

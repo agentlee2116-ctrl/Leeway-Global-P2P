@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LeeWay Global P2P</title>
+  <style>
+    :root {
+      --bg: #070b12;
+      --panel: #0e1522;
+      --panel-2: #141e30;
+      --border: #23324d;
+      --text: #eef3fb;
+      --muted: #93a4be;
+      --accent: #f59e0b;
+      --accent-2: #38bdf8;
+      --ok: #22c55e;
+      --warn: #eab308;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .app-shell {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* Top Bar with consistent right-side Language Switcher */
+    .top-bar {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 10px 14px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .brand-title {
+      font-weight: 800;
+      font-size: 1rem;
+      letter-spacing: 0.02em;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+    }
+
+    .badge.e2ee {
+      border-color: rgba(34, 197, 94, 0.45);
+      color: #86efac;
+    }
+
+    .status-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 5px 11px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      color: var(--text);
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--ok);
+      box-shadow: 0 0 8px rgba(34, 197, 94, 0.8);
+    }
+
+    .dot.offline {
+      background: var(--warn);
+      box-shadow: 0 0 8px rgba(234, 179, 8, 0.8);
+    }
+
+    .top-right-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: auto;
+    }
+
+    .lang-box {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 4px 8px;
+      font-size: 0.78rem;
+    }
+
+    select, input, button {
+      font-family: inherit;
+    }
+
+    select {
+      background: var(--panel);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 5px 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 7px 12px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.08s ease, background 0.15s ease;
+    }
+
+    .btn:hover { background: #1d2b44; }
+    .btn:active { transform: scale(0.98); }
+
+    .btn.primary {
+      background: var(--accent);
+      color: #0b0e14;
+      border-color: transparent;
+    }
+
+    .btn.video-room {
+      background: rgba(56, 189, 248, 0.14);
+      border-color: rgba(56, 189, 248, 0.45);
+      color: #bae6fd;
+    }
+
+    /* Setup Banner so onboarding is always visible until completed */
+    .setup-strip {
+      background: linear-gradient(90deg, rgba(245, 158, 11, 0.12), rgba(56, 189, 248, 0.1));
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 10px 14px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .setup-text {
+      font-size: 0.84rem;
+      color: var(--text);
+    }
+
+    .setup-text span {
+      color: var(--muted);
+      font-size: 0.78rem;
+      display: block;
+      margin-top: 2px;
+    }
+
+    /* Divided 3-Part Walkie-Talkie Workspace */
+    .workspace-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      gap: 12px;
+    }
+
+    @media (max-width: 780px) {
+      .workspace-grid { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 0.84rem;
+      font-weight: 800;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    /* Voice Walkie-Talkie Section */
+    .ptt-zone {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .ptt-big-btn {
+      width: 100%;
+      padding: 16px;
+      border-radius: 12px;
+      border: none;
+      background: var(--accent);
+      color: #090c12;
+      font-size: 1rem;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .ptt-big-btn.recording {
+      background: #ef4444;
+      color: #fff;
+    }
+
+    .feed-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .item-row {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 9px 11px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 0.84rem;
+    }
+
+    .item-meta {
+      color: var(--muted);
+      font-size: 0.75rem;
+    }
+
+    /* Video & Text Click-to-Expand Sections */
+    .clickable-preview {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .clickable-preview:hover {
+      border-color: var(--accent-2);
+    }
+
+    .video-thumb {
+      height: 112px;
+      border-radius: 9px;
+      background: linear-gradient(135deg, #0f2942, #132238);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px;
+    }
+
+    .text-preview-box {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px;
+      cursor: pointer;
+      font-size: 0.86rem;
+    }
+
+    .text-preview-box:hover {
+      border-color: var(--accent);
+    }
+
+    /* Single Composer with Voice Dictation + Emojis */
+    .composer {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .composer-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .composer-row input {
+      flex: 1;
+      background: var(--panel-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 9px 12px;
+      font-size: 0.9rem;
+    }
+
+    .emoji-bar {
+      display: none;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding-top: 4px;
+    }
+
+    .emoji-bar.open {
+      display: flex;
+    }
+
+    .emoji-chip {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 4px 8px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    /* Expandable Modal / Pop-up Drawer */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(3, 6, 12, 0.78);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+      z-index: 50;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal-box {
+      width: 100%;
+      max-width: 540px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-height: 88vh;
+      overflow-y: auto;
+    }
+
+    .modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .modal-title {
+      font-size: 1rem;
+      font-weight: 800;
+    }
+
+    .video-stage {
+      height: 220px;
+      border-radius: 12px;
+      background: radial-gradient(circle at top, #173654, #090e17);
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <!-- TOP BAR: Circle, E2EE, Status, Private Video Room, and Top-Right Language Switcher -->
+    <header class="top-bar">
+      <div class="brand-group">
+        <span class="brand-title" id="t-appName">LeeWay Global P2P</span>
+        <span class="badge e2ee" id="t-e2eeBadge">🔒 E2EE Secured</span>
+        <button type="button" class="status-btn" id="statusBtn">
+          <span class="dot" id="statusDot"></span>
+          <span id="statusText">All Good</span>
+        </button>
+        <select id="circleSelect" aria-label="Family Circle">
+          <option value="LW-MKE-01">Milwaukee Family (LW-MKE-01)</option>
+          <option value="LW-GLB-08">Global Family (LW-GLB-08)</option>
+          <option value="LW-UKG-03">UK & Gulf Circle (LW-UKG-03)</option>
+        </select>
+      </div>
+
+      <div class="top-right-controls">
+        <button type="button" class="btn video-room" id="openVideoRoomBtn">
+          <span id="t-videoRoom">Private Video Room</span>
+        </button>
+        <label class="lang-box" for="langSelect">
+          <span id="t-langLabel">🌐 Language:</span>
+          <select id="langSelect">
+            <option value="en">English (EN)</option>
+            <option value="es">Español (ES)</option>
+            <option value="ar">العربية (AR)</option>
+            <option value="zh">中文 (ZH)</option>
+            <option value="fr">Français (FR)</option>
+          </select>
+        </label>
+      </div>
+    </header>
+
+    <!-- SETUP STRIP: Clear device & family circle onboarding -->
+    <section class="setup-strip" id="setupStrip">
+      <div class="setup-text">
+        <strong id="t-setupTitle">Device & Family Circle Setup</strong>
+        <span id="t-setupDesc">Step 1: Create local keys & save app · Step 2: Join or create your private circle ID · Step 3: Send walkie-talkie voice, video snaps, or text.</span>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <button type="button" class="btn primary" id="openSetupBtn">Set Up / Circle ID</button>
+        <button type="button" class="btn" id="dismissSetupBtn">✓</button>
+      </div>
+    </section>
+
+    <!-- DIVIDED WORKSPACE: Walkie-Talkie Voice on Left, Video Snap + Text on Right -->
+    <main class="workspace-grid">
+      <!-- Walkie-Talkie Voice Section -->
+      <section class="card">
+        <div class="card-header">
+          <span id="t-walkieTitle">🎙️ Walkie-Talkie Voice</span>
+          <span id="activeCircleCode">LW-MKE-01</span>
+        </div>
+
+        <div class="ptt-zone">
+          <button type="button" class="ptt-big-btn" id="pttBtn">HOLD TO TALK</button>
+          <div class="item-meta" id="pttHint">Hold button or Spacebar to send a walkie-talkie voice burst (no call ring).</div>
+        </div>
+
+        <div class="feed-list" id="voiceList"></div>
+      </section>
+
+      <!-- Video Snap & Text Section (click each to expand, then close) -->
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <section class="card">
+          <div class="card-header">
+            <span id="t-videoSnapTitle">🎬 Video Snap (Tap to Open)</span>
+            <button type="button" class="btn" id="newSnapBtn">+ Snap</button>
+          </div>
+          <div class="clickable-preview" id="videoPreviewCard">
+            <div class="video-thumb">
+              <div>
+                <div style="font-weight:800;" id="snapPreviewTitle">Lakefront Shoreline Snap</div>
+                <div class="item-meta" id="snapPreviewMeta">Grandson (Leo Jr.) · 00:12 · Tap to expand & play</div>
+              </div>
+              <span class="btn primary">▶ Open</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-header">
+            <span id="t-textTitle">💬 Text Dispatch (Tap to Open)</span>
+            <span class="item-meta" id="latestTextBadge">1 new</span>
+          </div>
+          <div class="text-preview-box" id="textPreviewCard">
+            <div style="font-weight:700;" id="latestTextSender">Aunt Maya</div>
+            <div id="latestTextBody" style="margin-top:4px;">On my way home now, traffic is moving steady along I-94. 👍</div>
+            <div class="item-meta" style="margin-top:6px;" id="t-tapToExpandText">Tap to open full text thread & close anytime</div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <!-- SINGLE TEXT INPUT WITH VOICE DICTATION & EMOJIS -->
+    <section class="composer">
+      <form class="composer-row" id="textForm">
+        <button type="button" class="btn" id="dictateBtn" title="Voice Dictation">🎤 <span id="t-dictate">Dictate</span></button>
+        <button type="button" class="btn" id="emojiBtn" title="Emojis">😊</button>
+        <input type="text" id="textInput" placeholder="Speak or type a message to your family circle..." autocomplete="off" />
+        <button type="submit" class="btn primary" id="t-send">Send</button>
+      </form>
+      <div class="emoji-bar" id="emojiBar">
+        <button type="button" class="emoji-chip">👍</button>
+        <button type="button" class="emoji-chip">❤️</button>
+        <button type="button" class="emoji-chip">🙏</button>
+        <button type="button" class="emoji-chip">🚗</button>
+        <button type="button" class="emoji-chip">✅</button>
+        <button type="button" class="emoji-chip">👋</button>
+        <button type="button" class="emoji-chip">📍</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- EXPANDABLE POP-UP 1: VIDEO SNAP PLAYER & SAVE -->
+  <div class="modal-backdrop" id="videoModal">
+    <div class="modal-box">
+      <div class="modal-head">
+        <div class="modal-title" id="videoModalTitle">Video Snap</div>
+        <button type="button" class="btn" id="closeVideoModal">✕ Close</button>
+      </div>
+      <div class="video-stage">
+        <div style="font-size:1.1rem; font-weight:800;" id="videoStageLabel">Lakefront Shoreline Snap</div>
+        <div class="item-meta" id="videoStageSub">Encrypted clip · Ready for playback or local save</div>
+        <div id="videoPlayTimer" style="font-weight:800; color:var(--accent-2);">00:00 / 00:12</div>
+      </div>
+      <div style="display:flex; gap:8px; justify-content:flex-end;">
+        <button type="button" class="btn primary" id="toggleVideoPlayBtn">▶ Play / Pause</button>
+        <button type="button" class="btn" id="saveSnapBtn">⬇ Save Clip</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXPANDABLE POP-UP 2: TEXT DISPATCH VIEWER (closes cleanly back down) -->
+  <div class="modal-backdrop" id="textModal">
+    <div class="modal-box">
+      <div class="modal-head">
+        <div class="modal-title" id="textModalTitle">Circle Text Dispatches</div>
+        <button type="button" class="btn" id="closeTextModal">✕ Close</button>
+      </div>
+      <div class="feed-list" id="fullTextList"></div>
+    </div>
+  </div>
+
+  <!-- EXPANDABLE POP-UP 3: SETUP & CIRCLE ID -->
+  <div class="modal-backdrop" id="setupModal">
+    <div class="modal-box">
+      <div class="modal-head">
+        <div class="modal-title" id="setupModalTitle">Set Up Identity & Private Circle ID</div>
+        <button type="button" class="btn" id="closeSetupModal">✕ Close</button>
+      </div>
+      <div class="item-meta">Your device creates local keys and joins a private circle ID without self-hosting a server.</div>
+      <label class="item-meta">Display Name</label>
+      <input type="text" id="setupNameInput" value="Leonard J. Lee" style="background:var(--panel-2); color:var(--text); border:1px solid var(--border); border-radius:8px; padding:8px;" />
+      <label class="item-meta">Private Circle ID</label>
+      <input type="text" id="setupCircleInput" value="LW-MKE-01" style="background:var(--panel-2); color:var(--text); border:1px solid var(--border); border-radius:8px; padding:8px;" />
+      <div style="display:flex; gap:8px; justify-content:flex-end;">
+        <button type="button" class="btn primary" id="saveSetupBtn">Save Setup</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXPANDABLE POP-UP 4: OPT-IN PRIVATE VIDEO ROOM -->
+  <div class="modal-backdrop" id="roomModal">
+    <div class="modal-box">
+      <div class="modal-head">
+        <div class="modal-title" id="roomModalTitle">Private Video Room (Opt-In)</div>
+        <button type="button" class="btn" id="closeRoomModal">✕ Close</button>
+      </div>
+      <div class="item-meta">Live multi-party video is optional when family members are online together. Walkie-talkie clips and offline queues stay active separately.</div>
+      <div class="video-stage">
+        <div style="font-weight:800;" id="roomStatusHeadline">Standby — Tap Start for Live Room</div>
+        <div class="item-meta" id="roomCircleReadout">Circle: LW-MKE-01</div>
+      </div>
+      <div style="display:flex; gap:8px; justify-content:flex-end;">
+        <button type="button" class="btn primary" id="toggleRoomSessionBtn">Start Video Session</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const I18N = {
+      en: {
+        appName: 'LeeWay Global P2P',
+        e2eeBadge: '🔒 E2EE Secured',
+        videoRoom: 'Private Video Room',
+        langLabel: '🌐 Language:',
+        setupTitle: 'Device & Family Circle Setup',
+        setupDesc: 'Step 1: Create local keys & save app · Step 2: Join or create your private circle ID · Step 3: Send walkie-talkie voice, video snaps, or text.',
+        walkieTitle: '🎙️ Walkie-Talkie Voice',
+        holdToTalk: 'HOLD TO TALK',
+        talking: 'TALKING...',
+        videoSnapTitle: '🎬 Video Snap (Tap to Open)',
+        textTitle: '💬 Text Dispatch (Tap to Open)',
+        tapToExpandText: 'Tap to open full text thread & close anytime',
+        dictate: 'Dictate',
+        send: 'Send',
+        placeholder: 'Speak or type a message to your family circle...',
+      },
+      es: {
+        appName: 'LeeWay Global P2P',
+        e2eeBadge: '🔒 Cifrado E2EE',
+        videoRoom: 'Sala de Video Privada',
+        langLabel: '🌐 Idioma:',
+        setupTitle: 'Configuración de Dispositivo y Círculo',
+        setupDesc: 'Paso 1: Crea claves locales · Paso 2: Únete o crea tu ID de círculo privado · Paso 3: Envía voz walkie-talkie, clips o texto.',
+        walkieTitle: '🎙️ Voz Walkie-Talkie',
+        holdToTalk: 'MANTÉN PARA HABLAR',
+        talking: 'HABLANDO...',
+        videoSnapTitle: '🎬 Clip de Video (Toca para Abrir)',
+        textTitle: '💬 Mensaje de Texto (Toca para Abrir)',
+        tapToExpandText: 'Toca para abrir el texto completo y cerrar cuando quieras',
+        dictate: 'Dictar',
+        send: 'Enviar',
+        placeholder: 'Habla o escribe un mensaje a tu círculo familiar...',
+      },
+      ar: {
+        appName: 'LeeWay Global P2P',
+        e2eeBadge: '🔒 تشفير طرفاً لطرف',
+        videoRoom: 'غرفة فيديو خاصة',
+        langLabel: '🌐 اللغة:',
+        setupTitle: 'إعداد الجهاز والدائرة العائلية',
+        setupDesc: 'الخطوة 1: إنشاء المفاتيح · الخطوة 2: الانضمام أو إنشاء معرّف الدائرة · الخطوة 3: إرسال صوت أو فيديو أو نص.',
+        walkieTitle: '🎙️ صوت لاسلكي فوري',
+        holdToTalk: 'اضغط واستمر للتحدث',
+        talking: 'جارٍ التحدث...',
+        videoSnapTitle: '🎬 لقطة فيديو (اضغط للفتح)',
+        textTitle: '💬 رسالة نصية (اضغط للفتح)',
+        tapToExpandText: 'اضغط لفتح النص الكامل والإغلاق في أي وقت',
+        dictate: 'إملاء صوتي',
+        send: 'إرسال',
+        placeholder: 'تحدث أو اكتب رسالة لعائلتك...',
+      },
+      zh: {
+        appName: 'LeeWay Global P2P',
+        e2eeBadge: '🔒 端到端加密',
+        videoRoom: '私人视频房间',
+        langLabel: '🌐 语言:',
+        setupTitle: '设备与家庭圈设置',
+        setupDesc: '第1步：生成本地密钥 · 第2步：加入或创建私人圈子 ID · 第3步：发送对讲语音、短视频或文字。',
+        walkieTitle: '🎙️ 对讲语音',
+        holdToTalk: '按住说话',
+        talking: '正在讲话...',
+        videoSnapTitle: '🎬 视频片段（点击打开）',
+        textTitle: '💬 文字消息（点击打开）',
+        tapToExpandText: '点击展开完整文字并可随时关闭',
+        dictate: '语音输入',
+        send: '发送',
+        placeholder: '向家庭圈语音听写或输入消息...',
+      },
+      fr: {
+        appName: 'LeeWay Global P2P',
+        e2eeBadge: '🔒 Chiffré E2EE',
+        videoRoom: 'Salon Vidéo Privé',
+        langLabel: '🌐 Langue :',
+        setupTitle: 'Configuration Appareil & Cercle',
+        setupDesc: 'Étape 1 : Clés locales · Étape 2 : Rejoindre ou créer un ID de cercle · Étape 3 : Voix talkie, vidéo ou texte.',
+        walkieTitle: '🎙️ Voix Talkie-Walkie',
+        holdToTalk: 'MAINTENIR POUR PARLER',
+        talking: 'EN COURS...',
+        videoSnapTitle: '🎬 Clip Vidéo (Toucher pour Ouvrir)',
+        textTitle: '💬 Message Texte (Toucher pour Ouvrir)',
+        tapToExpandText: 'Toucher pour ouvrir le texte complet et fermer à tout moment',
+        dictate: 'Dicter',
+        send: 'Envoyer',
+        placeholder: 'Dictez ou écrivez un message à votre cercle...',
+      },
+    };
+
+    const state = {
+      lang: 'en',
+      offline: false,
+      userName: 'Leonard J. Lee',
+      circleId: 'LW-MKE-01',
+      recording: false,
+      recSec: 0,
+      recTimer: null,
+      videoPlaying: false,
+      videoSec: 0,
+      videoMaxSec: 12,
+      videoTimer: null,
+      roomLive: false,
+      voiceBursts: [
+        { sender: 'Dad (Leonard)', time: '15s ago', dur: '00:09' },
+        { sender: 'Grandson (Leo Jr.)', time: '3m ago', dur: '00:06' },
+      ],
+      texts: [
+        { sender: 'Aunt Maya', time: '12m ago', body: 'On my way home now, traffic is moving steady along I-94. 👍' },
+      ],
+    };
+
+    function applyLanguage(lang) {
+      state.lang = lang;
+      const t = I18N[lang] || I18N.en;
+      document.documentElement.lang = lang;
+      document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+
+      document.getElementById('t-appName').textContent = t.appName;
+      document.getElementById('t-e2eeBadge').textContent = t.e2eeBadge;
+      document.getElementById('t-videoRoom').textContent = t.videoRoom;
+      document.getElementById('t-langLabel').textContent = t.langLabel;
+      document.getElementById('t-setupTitle').textContent = t.setupTitle;
+      document.getElementById('t-setupDesc').textContent = t.setupDesc;
+      document.getElementById('t-walkieTitle').textContent = t.walkieTitle;
+      document.getElementById('t-videoSnapTitle').textContent = t.videoSnapTitle;
+      document.getElementById('t-textTitle').textContent = t.textTitle;
+      document.getElementById('t-tapToExpandText').textContent = t.tapToExpandText;
+      document.getElementById('t-dictate').textContent = t.dictate;
+      document.getElementById('t-send').textContent = t.send;
+      document.getElementById('textInput').placeholder = t.placeholder;
+      if (!state.recording) {
+        document.getElementById('pttBtn').textContent = t.holdToTalk;
+      }
+    }
+
+    function renderVoices() {
+      const list = document.getElementById('voiceList');
+      list.innerHTML = '';
+      state.voiceBursts.slice(0, 3).forEach((b) => {
+        const row = document.createElement('div');
+        row.className = 'item-row';
+        row.innerHTML = `<div><strong>${b.sender}</strong><div class="item-meta">${b.time} · E2EE</div></div><span>▶ ${b.dur}</span>`;
+        list.appendChild(row);
+      });
+    }
+
+    function renderLatestText() {
+      const latest = state.texts[0];
+      if (!latest) return;
+      document.getElementById('latestTextSender').textContent = `${latest.sender} · ${latest.time}`;
+      document.getElementById('latestTextBody').textContent = latest.body;
+      document.getElementById('latestTextBadge').textContent = `${state.texts.length} msg`;
+    }
+
+    function renderFullTextModal() {
+      const container = document.getElementById('fullTextList');
+      container.innerHTML = '';
+      state.texts.forEach((m) => {
+        const div = document.createElement('div');
+        div.className = 'item-row';
+        div.innerHTML = `<div style="width:100%;"><strong>${m.sender}</strong> <span class="item-meta">· ${m.time}</span><div style="margin-top:4px;">${m.body}</div></div>`;
+        container.appendChild(div);
+      });
+    }
+
+    // Top-right language switcher
+    document.getElementById('langSelect').addEventListener('change', (e) => {
+      applyLanguage(e.target.value);
+    });
+
+    // Status toggle
+    document.getElementById('statusBtn').addEventListener('click', () => {
+      state.offline = !state.offline;
+      document.getElementById('statusDot').classList.toggle('offline', state.offline);
+      document.getElementById('statusText').textContent = state.offline ? 'Queued Offline' : 'All Good';
+    });
+
+    // Circle select
+    document.getElementById('circleSelect').addEventListener('change', (e) => {
+      state.circleId = e.target.value;
+      document.getElementById('activeCircleCode').textContent = state.circleId;
+      document.getElementById('setupCircleInput').value = state.circleId;
+      document.getElementById('roomCircleReadout').textContent = `Circle: ${state.circleId}`;
+    });
+
+    // PTT hold & release
+    const pttBtn = document.getElementById('pttBtn');
+    function startRec() {
+      if (state.recording) return;
+      state.recording = true;
+      state.recSec = 1;
+      pttBtn.classList.add('recording');
+      pttBtn.textContent = `${I18N[state.lang].talking} 00:01`;
+      state.recTimer = setInterval(() => {
+        state.recSec += 1;
+        const mm = String(Math.floor(state.recSec / 60)).padStart(2, '0');
+        const ss = String(state.recSec % 60).padStart(2, '0');
+        pttBtn.textContent = `${I18N[state.lang].talking} ${mm}:${ss}`;
+      }, 1000);
+    }
+    function stopRec() {
+      if (!state.recording) return;
+      state.recording = false;
+      clearInterval(state.recTimer);
+      const dur = `00:${String(Math.max(1, state.recSec)).padStart(2, '0')}`;
+      pttBtn.classList.remove('recording');
+      pttBtn.textContent = I18N[state.lang].holdToTalk;
+      state.voiceBursts.unshift({ sender: `${state.userName} (You)`, time: 'Just now', dur });
+      renderVoices();
+    }
+    pttBtn.addEventListener('mousedown', startRec);
+    window.addEventListener('mouseup', () => { if (state.recording) stopRec(); });
+    pttBtn.addEventListener('touchstart', (e) => { e.preventDefault(); startRec(); }, { passive: false });
+    window.addEventListener('touchend', () => { if (state.recording) stopRec(); });
+
+    // Voice dictation into the single text input
+    document.getElementById('dictateBtn').addEventListener('click', () => {
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const input = document.getElementById('textInput');
+      if (!SR) {
+        input.focus();
+        return;
+      }
+      const rec = new SR();
+      rec.lang = state.lang;
+      rec.onresult = (ev) => {
+        const spoken = ev.results?.[0]?.[0]?.transcript || '';
+        if (spoken) input.value = input.value ? `${input.value} ${spoken}` : spoken;
+      };
+      rec.start();
+    });
+
+    // Emoji toggle
+    document.getElementById('emojiBtn').addEventListener('click', () => {
+      document.getElementById('emojiBar').classList.toggle('open');
+    });
+    document.getElementById('emojiBar').addEventListener('click', (e) => {
+      if (e.target.classList.contains('emoji-chip')) {
+        const input = document.getElementById('textInput');
+        input.value += e.target.textContent;
+        input.focus();
+      }
+    });
+
+    // Send text message
+    document.getElementById('textForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const input = document.getElementById('textInput');
+      const val = input.value.trim();
+      if (!val) return;
+      state.texts.unshift({ sender: `${state.userName} (You)`, time: 'Just now', body: val });
+      input.value = '';
+      renderLatestText();
+    });
+
+    // Modal helpers
+    const openModal = (id) => document.getElementById(id).classList.add('open');
+    const closeModal = (id) => document.getElementById(id).classList.remove('open');
+
+    // Video Snap modal
+    document.getElementById('videoPreviewCard').addEventListener('click', () => openModal('videoModal'));
+    document.getElementById('closeVideoModal').addEventListener('click', () => {
+      clearInterval(state.videoTimer);
+      state.videoPlaying = false;
+      closeModal('videoModal');
+    });
+    document.getElementById('toggleVideoPlayBtn').addEventListener('click', () => {
+      if (state.videoPlaying) {
+        clearInterval(state.videoTimer);
+        state.videoPlaying = false;
+        return;
+      }
+      state.videoPlaying = true;
+      state.videoTimer = setInterval(() => {
+        state.videoSec += 1;
+        if (state.videoSec > state.videoMaxSec) {
+          state.videoSec = 0;
+          clearInterval(state.videoTimer);
+          state.videoPlaying = false;
+        }
+        document.getElementById('videoPlayTimer').textContent = `00:${String(state.videoSec).padStart(2, '0')} / 00:12`;
+      }, 1000);
+    });
+    document.getElementById('saveSnapBtn').addEventListener('click', () => {
+      const blob = new Blob([JSON.stringify({ app: 'LeeWay Global P2P', circleId: state.circleId, clip: 'Lakefront Shoreline Snap', e2ee: true }, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'leeway-video-snap.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    // Text modal
+    document.getElementById('textPreviewCard').addEventListener('click', () => {
+      renderFullTextModal();
+      openModal('textModal');
+    });
+    document.getElementById('closeTextModal').addEventListener('click', () => closeModal('textModal'));
+
+    // Setup modal
+    document.getElementById('openSetupBtn').addEventListener('click', () => openModal('setupModal'));
+    document.getElementById('closeSetupModal').addEventListener('click', () => closeModal('setupModal'));
+    document.getElementById('dismissSetupBtn').addEventListener('click', () => {
+      document.getElementById('setupStrip').style.display = 'none';
+    });
+    document.getElementById('saveSetupBtn').addEventListener('click', () => {
+      state.userName = document.getElementById('setupNameInput').value.trim() || 'Leonard J. Lee';
+      state.circleId = document.getElementById('setupCircleInput').value.trim() || 'LW-MKE-01';
+      document.getElementById('activeCircleCode').textContent = state.circleId;
+      document.getElementById('roomCircleReadout').textContent = `Circle: ${state.circleId}`;
+      closeModal('setupModal');
+    });
+
+    // Opt-in Private Video Room modal
+    document.getElementById('openVideoRoomBtn').addEventListener('click', () => openModal('roomModal'));
+    document.getElementById('closeRoomModal').addEventListener('click', () => closeModal('roomModal'));
+    document.getElementById('toggleRoomSessionBtn').addEventListener('click', () => {
+      state.roomLive = !state.roomLive;
+      document.getElementById('roomStatusHeadline').textContent = state.roomLive
+        ? `Live Private Video Session (${state.circleId})`
+        : 'Standby — Tap Start for Live Room';
+    });
+
+    renderVoices();
+    renderLatestText();
+  </script>
+</body>
+</html>

@@ -1,0 +1,73 @@
+/*
+LEEWAY_HEADER - DO NOT REMOVE
+REGION: PRODUCT
+TAG: PRODUCT.LEEWAY_GLOBAL_P2P.INDEX
+DISCOVERY_PIPELINE: Voice -> Intent -> Location -> Vertical -> Ranking -> Render
+WHO: LeeWay Creator / LeeWay Global P2P engineering
+WHAT: Governed LeeWay Global P2P source: src\index.css
+WHEN: 2026-11-24
+WHERE: agentlee2116-ctrl/Leeway-Global-P2P/src/index.css
+WHY: Offline-first LeeWay walkie-talkie dispatch for families across regions
+HOW: Governed source reusing LeeWay contracts; no competing authority; evidence-backed verification
+*/
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-display: "Plus Jakarta Sans", system-ui, sans-serif;
+    --font-body: "DM Sans", system-ui, sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  }
+
+  html {
+    font-family: var(--font-body);
+    background-color: #0b0f14;
+    color: #f1f5f9;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  h1, h2, h3, .font-display {
+    font-family: var(--font-display);
+  }
+
+  .font-mono-tabular {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@keyframes ptt-pulse {
+  0% {
+    transform: scale(0.98);
+    opacity: 0.7;
+  }
+  70% {
+    transform: scale(1.16);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.16);
+    opacity: 0;
+  }
+}
+
+.animate-ptt-ring {
+  animation: ptt-pulse 1.4s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(16px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-ptt-ring {
+    animation: none;
+  }
+}

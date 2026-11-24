@@ -34,6 +34,12 @@
 
 JSON manifests, lockfiles, YAML GitHub Actions workflows, generated Capacitor Android scaffolding, build output, binary assets and receipt files are not hand-authored governed source; they are excluded from the header applicator and recorded here as exemptions rather than given invented metadata. YAML is excluded specifically because HTML comment headers make workflow files invalid and caused CI validation failures on 2026-11-24; the repair removed those headers and added a deterministic local YAML validation step.
 
+## Presentation layer provenance (2026-11-24)
+
+The corrected product UI was supplied as a self-contained React presentation layer and is now the canonical UI of this repository (`src/App.tsx`, `src/components/`, `src/index.css`, `src/utils/` UI helpers, `src/assets/`, `public/assets/aistudio/`). Root-absolute asset URLs were converted to relative URLs so the same UI runs from a GitHub Pages subpath, a local file shell, or any native wrapper without a drive-specific path.
+
+The UI-local `utils/` modules are presentation/adapter state only. They do not replace LeeWay RTC, Federate, Device Bridge, identity, circle or governance authorities in `src/core/`. No claim is made that enrollment or circle state held by the UI is a canonical LeeWay authority; binding to canonical contracts remains a separate acceptance gate.
+
 ## Visual identity
 
 The Creator-supplied logo `leewaysmalllogo.png` is the product mark. It appears in the application header, the GitHub Pages landing page, and the packaged web assets. No alternate logo is substituted.
