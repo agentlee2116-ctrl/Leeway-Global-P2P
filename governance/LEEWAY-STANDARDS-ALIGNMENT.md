@@ -32,7 +32,7 @@
 
 ## R23 exemptions
 
-JSON manifests, lockfiles, generated Capacitor Android scaffolding, build output, binary assets and receipt files are not hand-authored governed source; they are excluded from the header applicator and recorded here as exemptions rather than given invented metadata.
+JSON manifests, lockfiles, YAML GitHub Actions workflows, generated Capacitor Android scaffolding, build output, binary assets and receipt files are not hand-authored governed source; they are excluded from the header applicator and recorded here as exemptions rather than given invented metadata. YAML is excluded specifically because HTML comment headers make workflow files invalid and caused CI validation failures on 2026-11-24; the repair removed those headers and added a deterministic local YAML validation step.
 
 ## Visual identity
 

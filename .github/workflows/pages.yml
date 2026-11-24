@@ -1,15 +1,5 @@
-<!--
-LEEWAY_HEADER - DO NOT REMOVE
-REGION: PRODUCT
-TAG: PRODUCT.LEEWAY_GLOBAL_P2P.PAGES
-DISCOVERY_PIPELINE: Voice -> Intent -> Location -> Vertical -> Ranking -> Render
-WHO: LeeWay Creator / LeeWay Global P2P engineering
-WHAT: Governed LeeWay Global P2P source: .github\workflows\pages.yml
-WHEN: 2026-11-24
-WHERE: agentlee2116-ctrl/Leeway-Global-P2P/.github/workflows/pages.yml
-WHY: Offline-first LeeWay walkie-talkie dispatch for families across regions
-HOW: Governed source reusing LeeWay contracts; no competing authority; evidence-backed verification
--->
+# LeeWay R23 exemption: YAML workflows cannot carry HTML comment headers.
+# Governance metadata for this file lives in governance/LEEWAY-STANDARDS-ALIGNMENT.md.
 name: LeeWay Global P2P — GitHub Pages
 
 on:
@@ -46,7 +36,6 @@ jobs:
 
       - name: Install and build universal Web/PWA app
         run: |
-          npm config set allow-scripts true
           npm ci
           npm run build
 

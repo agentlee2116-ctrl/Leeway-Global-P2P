@@ -11,7 +11,8 @@
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "tsx --test tests/*.test.ts",
     "test:relay": "node relay/relay-selftest.mjs",
-    "verify": "npm run typecheck && npm test && npm run build && npm run test:relay",
+    "validate:workflows": "node scripts/validate-workflows.mjs",
+    "verify": "npm run typecheck && npm test && npm run build && npm run test:relay && npm run validate:workflows",
     "relay": "node relay/server.mjs",
     "cap:sync": "npx cap sync android",
     "qr": "node scripts/generate-qr.mjs",
@@ -35,7 +36,8 @@
     "@vitejs/plugin-react": "^4.7.0",
     "tsx": "^4.20.3",
     "typescript": "^5.8.3",
-    "vite": "^6.3.5"
+    "vite": "^6.3.5",
+    "yaml": "^2.9.1"
   },
   "allowScripts": {
     "esbuild@0.28.2": true,

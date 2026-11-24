@@ -16,7 +16,8 @@ import path from 'node:path';
 const ROOT = process.cwd();
 const INCLUDE_DIRS = ['src', 'tests', 'scripts', 'relay', 'site', 'docs', 'governance', '.github'];
 const INCLUDE_ROOT_FILES = ['README.md', 'AGENTS.md'];
-const INCLUDE_EXT = new Set(['.ts', '.tsx', '.mjs', '.js', '.css', '.html', '.md', '.yml', '.yaml', '.java', '.gradle']);
+// YAML workflow files cannot carry HTML comments: GitHub Actions rejects them.
+const INCLUDE_EXT = new Set(['.ts', '.tsx', '.mjs', '.js', '.css', '.html', '.md', '.java', '.gradle']);
 const SKIP_PARTS = new Set(['node_modules', 'dist', 'build', '.gradle', 'outputs', 'generated', '.git', 'android']);
 
 async function walk(dir, out = []) {
@@ -46,7 +47,7 @@ function header(rel, purpose) {
     'HOW: Governed source reusing LeeWay contracts; no competing authority; evidence-backed verification',
   ];
   const ext = path.extname(rel);
-  if (['.html', '.md', '.yml', '.yaml'].includes(ext)) return `<!--\n${lines.join('\n')}\n-->\n`;
+  if (['.html', '.md'].includes(ext)) return `<!--\n${lines.join('\n')}\n-->\n`;
   return `/*\n${lines.join('\n')}\n*/\n`;
 }
 
