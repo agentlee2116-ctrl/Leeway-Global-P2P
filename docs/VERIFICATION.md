@@ -55,6 +55,17 @@ Unit coverage includes: crypto round trips and tamper rejection, capability expi
 | GitHub Pages | **NOT DEPLOYED** — requires repository write permission. |
 | QR code | `site/leeway-qr.png` generated locally; target URL `https://agentlee2116-ctrl.github.io/Leeway-Global-P2P/downloads/leeway-global-p2p-v1.0.0-release.apk`. Live target resolution **NOT VERIFIED** until Pages is live. |
 
+## 4b. Scoped secure-communications repair (branch `repair/secure-comms-integration-20261124`)
+
+- `npm run verify`: typecheck PASS, **55/55** unit/integration tests PASS (38 canonical core + 17 UI/enrollment), **13/13** relay tests PASS, workflow validation 2/2, standalone HTML PASS.
+- Negative confidentiality test: `public circle metadata alone cannot decrypt a dispatch` PASS. Public-derived AES key no longer exists; legacy shared ciphertext fields are empty; a rogue device cannot use another member's ECDH copy.
+- Real PTT: `BrowserPlatform.captureAudio()` + encrypted audio payload + signed ACK path implemented; physical microphone capture on two devices NOT VERIFIED.
+- Real video room: `P2PLink` + relay signaling wired; simulated remote participant removed from the activation path; cross-device live call NOT VERIFIED.
+- Enrollment: signed join requests/grants/revocations can now travel over the relay transport while verification remains in the existing owner/member flows; cross-device approval/revocation NOT VERIFIED without two enrolled devices.
+- Languages: 70 locale options; 20 full translations; rest explicitly fall back to English; selection persists in `localStorage`.
+
+Deployed `main` remains at `83c6deb042aac62bbe02b8fdfc631f40509ed6d7` until this repair is reviewed and merged. No APK is silently replaced by this branch.
+
 ## 5. Honest NOT VERIFIED list
 
 - Physical LeeWay Device Bridge mesh hardware: **NOT VERIFIED**.

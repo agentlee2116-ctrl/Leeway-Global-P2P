@@ -22,6 +22,8 @@ import {
 } from 'lucide-react';
 import { formatDuration, type VideoSnap } from '../utils/circleLogic';
 import type { Translations } from '../utils/i18n';
+import { detectPlatform } from '../platform/index.ts';
+import { bytesToBase64 } from '../core/crypto.ts';
 import { BottomSheetModal } from './BottomSheetModal';
 
 interface VideoSnapSheetProps {
@@ -34,7 +36,7 @@ interface VideoSnapSheetProps {
   onSelectSnap: (snap: VideoSnap) => void;
   onToggleReaction: (snapId: string, emoji: string) => void;
   onClose: () => void;
-  onCreateSnap: (params: { title: string; durationSec: number; thumbnailUrl: string }) => {
+  onCreateSnap: (params: { title: string; durationSec: number; thumbnailUrl: string; mediaBytes?: string; mime?: string }) => {
     ok: boolean;
     error?: string;
   };
@@ -130,12 +132,31 @@ export function VideoSnapSheet({
     setSavedNotice(true);
   };
 
-  const handleCreateSubmit = (e: FormEvent) => {
+  const handleCreateSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    let thumbnailUrl = selectedPreset;
+    let durationSec = 0;
+    let mediaBytes: string | undefined;
+    let mime: string | undefined;
+    try {
+      const platform = detectPlatform();
+      const handle = await platform.captureVideo();
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+      handle.stop();
+      const burst = await handle.result;
+      mediaBytes = bytesToBase64(burst.bytes);
+      mime = burst.mime;
+      thumbnailUrl = burst.previewUrl ?? selectedPreset;
+      durationSec = Math.max(1, Math.round(burst.durationMs / 1000));
+    } catch {
+      // Honest fallback: no camera bytes were captured; the snaps stays metadata-only.
+    }
     const res = onCreateSnap({
       title: newTitle,
-      durationSec: 11,
-      thumbnailUrl: selectedPreset,
+      durationSec: durationSec || 1,
+      thumbnailUrl,
+      mediaBytes,
+      mime,
     });
     if (!res.ok) {
       setCreateError(res.error ?? 'Snap title is required.');

@@ -14,6 +14,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { CircleMobilePanel } from './components/CircleMobilePanel';
 import { DeviceStatusSheet } from './components/DeviceStatusSheet';
 import { LeeWayLogo } from './components/LeeWayLogo';
+import { LeeWayLoadingScreen } from './components/LeeWayLoadingScreen';
 import { MemberOnboardingFlow } from './components/MemberOnboardingFlow';
 import { MobileBottomNav, type MobileTab } from './components/MobileBottomNav';
 import { OnboardingWelcome } from './components/OnboardingWelcome';
@@ -64,11 +65,17 @@ import {
 } from './utils/enrollmentCrypto';
 import { I18N, isRtlLang, type LangCode } from './utils/i18n';
 import { playWalkieChirp } from './utils/soundEffects';
+import { SecureCommsBridge, type DispatchPayload } from './comms/bridge.ts';
+import { detectPlatform, type CaptureHandle } from './platform/index.ts';
+import { base64ToBytes, bytesToBase64 } from './core/crypto.ts';
 
 type BootPhase = 'checking' | 'welcome' | 'owner-setup' | 'member-join' | 'enrolled';
 
 export default function App() {
-  const [lang, setLang] = useState<LangCode>('en');
+  const [lang, setLang] = useState<LangCode>(() => {
+    const saved = localStorage.getItem('lwp.ui.lang') as LangCode | null;
+    return saved && saved in I18N ? saved : 'en';
+  });
   const [bootPhase, setBootPhase] = useState<BootPhase>('checking');
   const [lockReason, setLockReason] = useState<string | null>(null);
   const [pendingMember, setPendingMember] = useState<PendingMemberEnrollment | null>(null);
@@ -112,12 +119,82 @@ export default function App() {
   const [roomModalOpen, setRoomModalOpen] = useState(false);
   const [roomLive, setRoomLive] = useState(false);
 
+  // Real communications bridge (canonical core contracts) and captured media URLs.
+  const bridgeRef = useRef<SecureCommsBridge | null>(null);
+  const captureRef = useRef<CaptureHandle | null>(null);
+  const platform = useMemo(() => detectPlatform(), []);
+  const [commState, setCommState] = useState('offline');
+  const [mediaUrls, setMediaUrls] = useState<Record<string, string>>({});
+
   const t = I18N[lang];
 
   useEffect(() => {
     document.documentElement.lang = lang;
     document.documentElement.dir = isRtlLang(lang) ? 'rtl' : 'ltr';
+    localStorage.setItem('lwp.ui.lang', lang);
   }, [lang]);
+
+  // Real communications: relay + per-recipient E2EE + signed ACKs over canonical core.
+  useEffect(() => {
+    if (bootPhase !== 'enrolled' || !session?.authority || !deviceKeys) return;
+    const bridge = new SecureCommsBridge({
+      circleId: session.circleId,
+      authority: session.authority,
+      grant: session.grant,
+      deviceKeys,
+    }, {
+      onDispatch: (payload: DispatchPayload, from: string, id: string) => {
+        const member = session.authority?.members.find((m) => m.fingerprint === from);
+        const senderName = member?.name ?? 'Family member';
+        if (payload.kind === 'text') {
+          const res = addTextMessage([], {
+            circleId: session.circleId,
+            sender: senderName,
+            avatarUrl: './src/assets/images/avatar_leonard_1795518769606.jpg',
+            body: payload.text ?? '',
+            offline: false,
+            justNowLabel: t.justNow,
+          });
+          if (res.ok) setTexts((prev) => [...res.messages, ...prev]);
+        } else if (payload.kind === 'ptt') {
+          const res = addVoiceBurst([], {
+            circleId: session.circleId,
+            sender: senderName,
+            avatarUrl: './src/assets/images/avatar_leonard_1795518769606.jpg',
+            durationSec: Math.max(1, Math.round((payload.durationMs ?? 1000) / 1000)),
+            offline: false,
+            justNowLabel: t.justNow,
+          });
+          {
+            setVoiceBursts((prev) => [...res, ...prev]);
+            if (payload.mediaBase64) {
+              const bytes = base64ToBytes(payload.mediaBase64);
+              const url = URL.createObjectURL(new Blob([bytes as BlobPart], { type: payload.mime || 'audio/webm' }));
+              setMediaUrls((prev) => ({ ...prev, [id]: url }));
+            }
+          }
+        } else if (payload.kind === 'snap') {
+          const res = addVideoSnap([], {
+            circleId: session.circleId,
+            title: payload.name ?? 'Video snap',
+            sender: senderName,
+            avatarUrl: './src/assets/images/avatar_leonard_1795518769606.jpg',
+            durationSec: Math.max(1, Math.round((payload.durationMs ?? 1000) / 1000)),
+            thumbnailUrl: '',
+            offline: false,
+            justNowLabel: t.justNow,
+          });
+          if (res.ok) setSnaps((prev) => [...res.snaps, ...prev]);
+        }
+        setCommState(`received from ${senderName}`);
+      },
+      onAck: (_id, acked, total) => setCommState(`signed ACK ${acked}/${total}`),
+      onState: (state, detail) => setCommState(`${state}${detail ? ` · ${detail}` : ''}`),
+    });
+    bridgeRef.current = bridge;
+    bridge.connect();
+    return () => { bridge.close(); bridgeRef.current = null; };
+  }, [bootPhase, session, deviceKeys, t.justNow]);
 
   const hydrateEncryptedFeed = useCallback(async (activeSession: EnrollmentSession) => {
     const revocations = await loadKnownRevocations(activeSession.circleId);
@@ -458,34 +535,53 @@ export default function App() {
   const canSend = Boolean(session?.grant.permissions.sendMessage);
   const canVideoRoom = Boolean(session?.grant.permissions.videoRoom);
 
-  const handleStartRec = useCallback(() => {
+  const handleStartRec = useCallback(async () => {
     if (!session || !canTalk || recordingRef.current) return;
-    recordingRef.current = true;
-    recSecondsRef.current = 1;
-    setRecSeconds(1);
-    setRecording(true);
-    setPlayingBurstId(null);
-    if (soundEnabled) playWalkieChirp('start');
-  }, [canTalk, session, soundEnabled]);
+    try {
+      const handle = await platform.captureAudio();
+      captureRef.current = handle;
+      recordingRef.current = true;
+      recSecondsRef.current = 0;
+      setRecSeconds(0);
+      setRecording(true);
+      setPlayingBurstId(null);
+      setCommState('microphone capture active');
+      if (soundEnabled) playWalkieChirp('start');
+    } catch (err) {
+      setCommState(`microphone unavailable: ${String(err)}`);
+    }
+  }, [canTalk, platform, session, soundEnabled]);
 
   const handleStopRec = useCallback(() => {
-    if (!recordingRef.current || !session) return;
+    const handle = captureRef.current;
+    captureRef.current = null;
+    if (!recordingRef.current || !session || !handle) return;
     recordingRef.current = false;
-    const dur = Math.max(1, recSecondsRef.current);
     setRecording(false);
     setRecSeconds(0);
     if (soundEnabled) playWalkieChirp('end');
 
-    const nextList = addVoiceBurst(voiceBursts, {
-      circleId: session.circleId,
-      sender: `${session.userName} (${t.youLabel})`,
-      avatarUrl: './src/assets/images/avatar_leonard_1795518769606.jpg',
-      durationSec: dur,
-      offline,
-      justNowLabel: t.justNow,
-    });
-    setVoiceBursts(nextList);
-    void encryptAndPersistItem('voice', nextList[0], session);
+    void handle.result.then(async (burst) => {
+      const dur = Math.max(1, Math.round(burst.durationMs / 1000));
+      const nextList = addVoiceBurst(voiceBursts, {
+        circleId: session.circleId,
+        sender: `${session.userName} (${t.youLabel})`,
+        avatarUrl: './src/assets/images/avatar_leonard_1795518769606.jpg',
+        durationSec: dur,
+        offline,
+        justNowLabel: t.justNow,
+      });
+      setVoiceBursts(nextList);
+      void encryptAndPersistItem('voice', nextList[0], session);
+      const result = await bridgeRef.current?.send({
+        kind: 'ptt',
+        mediaBase64: bytesToBase64(burst.bytes),
+        mime: burst.mime,
+        durationMs: burst.durationMs,
+        meta: { media: 'audio', mime: burst.mime, name: 'voice-burst', sha256: '', size: burst.bytes.length, ptt: true },
+      });
+      setCommState(result?.sent ? 'voice burst sent · awaiting signed ACK' : 'voice burst queued offline');
+    }).catch((err) => setCommState(`audio capture failed: ${String(err)}`));
   }, [encryptAndPersistItem, offline, session, soundEnabled, t.justNow, t.youLabel, voiceBursts]);
 
   // Spacebar Push-to-Talk shortcut (active only when enrolled & permitted)
@@ -553,7 +649,14 @@ export default function App() {
       setPlayingBurstId(null);
       return;
     }
-    if (soundEnabled) playWalkieChirp('play');
+    const url = mediaUrls[burst.id];
+    if (url) {
+      const audio = new Audio(url);
+      audio.onended = () => { setPlayingBurstId(null); setPlaybackProgress(0); };
+      void audio.play().catch((err) => setCommState(`playback failed: ${String(err)}`));
+    } else if (soundEnabled) {
+      playWalkieChirp('play');
+    }
     setPlayingBurstId(burst.id);
     setPlaybackProgress(0.08);
   };
@@ -573,6 +676,9 @@ export default function App() {
     if (res.ok) {
       setTexts(res.messages);
       void encryptAndPersistItem('text', res.messages[0], session);
+      void bridgeRef.current?.send({ kind: 'text', text: body }).then((result) => {
+        setCommState(result.sent ? 'dispatch sent · awaiting signed ACK' : 'dispatch queued offline');
+      });
       return { ok: true };
     }
     return { ok: false, error: res.error };
@@ -582,6 +688,8 @@ export default function App() {
     title: string;
     durationSec: number;
     thumbnailUrl: string;
+    mediaBytes?: string;
+    mime?: string;
   }) => {
     if (!session || !canSend) {
       return { ok: false, error: 'Sending media is restricted for this device.' };
@@ -599,6 +707,21 @@ export default function App() {
     if (res.ok) {
       setSnaps(res.snaps);
       void encryptAndPersistItem('snap', res.snaps[0], session);
+      void bridgeRef.current?.send({
+        kind: 'snap',
+        name: params.title,
+        mediaBase64: params.mediaBytes,
+        mime: params.mime,
+        durationMs: params.durationSec * 1000,
+        meta: {
+          media: 'video', mime: params.mime ?? 'video/webm', name: params.title,
+          sha256: '', size: params.mediaBytes?.length ?? 0,
+        },
+      }).then((result) => setCommState(
+        params.mediaBytes
+          ? (result.sent ? 'video snap sent · awaiting signed ACK' : 'video snap queued offline')
+          : 'metadata-only snap: no camera bytes captured',
+      ));
       return { ok: true };
     }
     return { ok: false, error: res.error };
@@ -606,15 +729,7 @@ export default function App() {
 
   // STRICT ENROLLMENT GATE: Nothing in Dispatch, Walkie, Media, or Video Room renders until valid enrollment completes
   if (bootPhase === 'checking') {
-    return (
-      <div className="min-h-[100dvh] bg-[#080B0F] text-slate-300 flex flex-col items-center justify-center gap-4 p-6 text-sm text-center">
-        <LeeWayLogo size="crest" showWordmark={false} />
-        <div className="flex flex-col gap-1">
-          <span className="font-display text-lg font-bold text-slate-100">{t.appName}</span>
-          <span className="text-xs text-slate-400">Verifying device enrollment...</span>
-        </div>
-      </div>
-    );
+    return <LeeWayLoadingScreen t={t} />;
   }
 
   if (bootPhase === 'welcome') {
@@ -846,7 +961,21 @@ export default function App() {
           circleId={session.circleId}
           userName={session.userName}
           roomLive={roomLive}
-          onToggleRoomLive={() => setRoomLive((live) => !live)}
+          onToggleRoomLive={() => {
+            if (roomLive) {
+              bridgeRef.current?.closePrivateRoom();
+              setRoomLive(false);
+              setCommState('private video room closed');
+              return;
+            }
+            void bridgeRef.current?.startLiveMedia(true).then(() => {
+              setRoomLive(true);
+              setCommState('private video room connected');
+            }).catch((err) => {
+              setRoomLive(false);
+              setCommState(`live video unavailable: ${String(err)}`);
+            });
+          }}
           onClose={() => setRoomModalOpen(false)}
         />
       )}

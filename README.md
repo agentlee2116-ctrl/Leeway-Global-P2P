@@ -61,6 +61,15 @@ PWA updates: the service worker uses a network-first shell, detects new builds, 
 
 `LEEWAY_KEYSTORE_BASE64`, `LEEWAY_STORE_PASSWORD`, `LEEWAY_KEY_ALIAS`, `LEEWAY_KEY_PASSWORD`. Optional relay enforcement: `LEEWAY_CIRCLE_AUTHORITY_JWK`, `LEEWAY_CIRCLE_ADMIN`, `LEEWAY_REVOKED_GRANTS`.
 
+## Secure communications repair (scoped branch)
+
+- Message confidentiality uses canonical per-recipient ECDH/HKDF/AES-GCM (`src/core/crypto.ts`); the former key derived from public `circleId` + `ownerFingerprint` was removed and is guarded by a negative test.
+- Real `RelayClient`/`P2PLink` transport is bridged into the UI via `src/comms/bridge.ts`; signed text, PTT audio and snap dispatch are sent with signed ACKs and offline retry.
+- PTT uses actual microphone capture through `src/platform`; video-room uses real RTC media and relay signaling. BroadcastChannel is local-tab sync only.
+- 70-locale selector is reconciled with the 20 fully translated UI bundles; unsupported locales are explicitly labelled "English fallback" and stored across restarts.
+- Standalone single-file build: `npm run standalone` → `dist/leeway-global-p2p-standalone.html` (see `docs/STANDALONE.md`).
+- Verification totals: **55 unit/integration tests**, **13 relay integration tests**, 2 valid workflows, standalone PASS.
+
 ## Honest status
 
 Mesh hardware, satellite uplink, cross-region two-device testing and native OS shells are **NOT VERIFIED**. No Veritas/receipt/Learning Ledger admission is claimed. Full evidence: `docs/VERIFICATION.md`.

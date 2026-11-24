@@ -362,30 +362,49 @@ export async function publishRevocationList(circleId: string, revokedDeviceIds: 
   broadcastSyncEvent({ type: 'REVOCATION_LIST', circleId, revokedDeviceIds });
 }
 
+/* BroadcastChannel stays local-tab-only. A real relay transport may be bound by
+ * the communications bridge; enrollment messages are then delivered cross-device
+ * while the existing signature/revocation checks remain the authorization gate. */
+let relaySyncSender: ((message: RelaySyncMessage) => void) | null = null;
+const remoteSyncHandlers = new Set<(message: RelaySyncMessage) => void>();
+
+export function setRelaySyncTransport(send: (message: RelaySyncMessage) => void): void {
+  relaySyncSender = send;
+}
+
+export function receiveRelaySyncEvent(message: RelaySyncMessage | null | undefined): void {
+  if (!message || typeof message !== 'object') return;
+  remoteSyncHandlers.forEach((handler) => handler(message));
+}
+
 export function broadcastSyncEvent(message: RelaySyncMessage): void {
-  if (typeof BroadcastChannel === 'undefined') return;
-  try {
-    const channel = new BroadcastChannel('leeway-p2p-sync');
-    channel.postMessage(message);
-    channel.close();
-  } catch {
-    // Ignore environments without BroadcastChannel
+  if (typeof BroadcastChannel !== 'undefined') {
+    try {
+      const channel = new BroadcastChannel('leeway-p2p-sync');
+      channel.postMessage(message);
+      channel.close();
+    } catch {
+      // Ignore environments without BroadcastChannel
+    }
   }
+  relaySyncSender?.(message);
 }
 
 export function subscribeSyncEvents(handler: (message: RelaySyncMessage) => void): () => void {
-  if (typeof BroadcastChannel === 'undefined') return () => {};
-  try {
-    const channel = new BroadcastChannel('leeway-p2p-sync');
-    channel.onmessage = (ev: MessageEvent<RelaySyncMessage>) => {
-      if (ev.data && typeof ev.data === 'object') {
-        handler(ev.data);
-      }
-    };
-    return () => channel.close();
-  } catch {
-    return () => {};
+  remoteSyncHandlers.add(handler);
+  let closeLocal: (() => void) | null = null;
+  if (typeof BroadcastChannel !== 'undefined') {
+    try {
+      const channel = new BroadcastChannel('leeway-p2p-sync');
+      channel.onmessage = (ev: MessageEvent<RelaySyncMessage>) => {
+        if (ev.data && typeof ev.data === 'object') handler(ev.data);
+      };
+      closeLocal = () => channel.close();
+    } catch {
+      closeLocal = null;
+    }
   }
+  return () => { remoteSyncHandlers.delete(handler); closeLocal?.(); };
 }
 
 // Fail-closed startup gate: verifies device keys, lock confirmation, and signed non-revoked grant
