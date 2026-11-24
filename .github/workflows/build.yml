@@ -41,8 +41,8 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - uses: android-actions/setup-android@v3
-
+      # GitHub-hosted ubuntu runners already provide ANDROID_HOME and the SDK;
+      # setup-android@v3 fails because it installs the removed 'tools' package.
       - name: Install Android SDK packages
         run: sdkmanager "platforms;android-34" "build-tools;34.0.0" "platform-tools"
 
