@@ -57,7 +57,13 @@ jobs:
           if compgen -G "downloaded-apk/*.apk" > /dev/null; then
             cp downloaded-apk/*.apk pages-dist/downloads/
             cp downloaded-apk/SHA256SUMS.txt pages-dist/downloads/
+          elif compgen -G "release/*.apk" > /dev/null; then
+            # The reviewed signed APK is committed; publish it when CI has no signing secrets.
+            cp release/*.apk pages-dist/downloads/
+            cp release/SHA256SUMS.txt pages-dist/downloads/
           fi
+          test -s pages-dist/downloads/SHA256SUMS.txt
+          test -n "$(compgen -G 'pages-dist/downloads/*.apk' || true)"
           QR_OUT=pages-dist/leeway-qr.png node scripts/generate-qr.mjs
 
       - uses: actions/configure-pages@v5
