@@ -33,6 +33,7 @@ export interface EnrollmentSession {
   grant: SignedMembershipGrant;
   authority?: CircleAuthorityState;
   recoveryKitCreatedAt?: number;
+  accessPassphraseConfigured?: boolean;
   enrolledAt: number;
 }
 

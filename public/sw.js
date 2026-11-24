@@ -1,6 +1,6 @@
 /* LeeWay Global P2P — offline app-shell cache. Never caches message bodies. */
-const CACHE = 'leeway-p2p-shell-v3';
-const SHELL = ['./', './index.html', './manifest.webmanifest', './icon.svg', './leeway-logo-small.png'];
+const CACHE = 'leeway-p2p-shell-v4';
+const SHELL = ['./', './index.html', './manifest.webmanifest', './icon.svg', './leeway-logo-small.png', './assets/aistudio/leewaylargelogo.png', './assets/aistudio/leewaysmalllogo_698be64f.png'];
 
 self.addEventListener('message', (event) => {
   if (event.data?.type === 'SKIP_WAITING') self.skipWaiting();

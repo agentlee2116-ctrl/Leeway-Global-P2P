@@ -15,6 +15,10 @@ import { CircleMobilePanel } from './components/CircleMobilePanel';
 import { DeviceStatusSheet } from './components/DeviceStatusSheet';
 import { LeeWayLogo } from './components/LeeWayLogo';
 import { LeeWayLoadingScreen } from './components/LeeWayLoadingScreen';
+import { SecureSignIn, type SignInDeviceSummary } from './components/SecureSignIn';
+import { verifyLocalDevicePossession } from './utils/deviceSignIn';
+import { hasAccessPassphrase, establishAccessPassphrase, requireAccessPassphrase } from './utils/signInAccess';
+import { holdSplashSince } from './utils/entryPolicy';
 import { MemberOnboardingFlow } from './components/MemberOnboardingFlow';
 import { MobileBottomNav, type MobileTab } from './components/MobileBottomNav';
 import { OnboardingWelcome } from './components/OnboardingWelcome';
@@ -69,7 +73,7 @@ import { SecureCommsBridge, type DispatchPayload } from './comms/bridge.ts';
 import { detectPlatform, type CaptureHandle } from './platform/index.ts';
 import { base64ToBytes, bytesToBase64 } from './core/crypto.ts';
 
-type BootPhase = 'checking' | 'welcome' | 'owner-setup' | 'member-join' | 'enrolled';
+type BootPhase = 'checking' | 'sign-in' | 'welcome' | 'owner-setup' | 'member-join' | 'enrolled';
 
 export default function App() {
   const [lang, setLang] = useState<LangCode>(() => {
@@ -83,6 +87,13 @@ export default function App() {
 
   const [session, setSession] = useState<EnrollmentSession | null>(null);
   const [deviceKeys, setDeviceKeys] = useState<DeviceKeyRecord | null>(null);
+  const [signInDevice, setSignInDevice] = useState<SignInDeviceSummary | null>(null);
+  const [signInBusy, setSignInBusy] = useState(false);
+  const [signInError, setSignInError] = useState<string | null>(null);
+  const [credentialSetupRequired, setCredentialSetupRequired] = useState(false);
+  const [entryCycle, setEntryCycle] = useState(0);
+  const hasLeftForegroundRef = useRef(false);
+  const bootPhaseRef = useRef<BootPhase>('checking');
 
   // Encrypted workspace state (only populated after valid enrollment)
   const [offline, setOffline] = useState(false);
@@ -232,49 +243,163 @@ export default function App() {
     setSnaps(nextSnaps);
   }, []);
 
-  // Mandatory fail-closed startup gate
+  // Each entry proves knowledge of a secret AND possession of the bound device key.
+  // This is offline device unlocking, not an invented email/password cloud account.
+  const handleSignIn = async (passphrase: string, confirmation?: string) => {
+    if (signInBusy) return;
+    setSignInBusy(true);
+    setSignInError(null);
+    try {
+      const gate = await evaluateEnrollmentGate();
+      if (gate.status !== 'enrolled') {
+        setSignInDevice(null);
+        setLockReason(gate.status === 'locked' ? (gate.reason ?? 'Not enrolled on this device.') : 'Membership approval is pending.');
+        throw new Error('This device does not have an active, authorized membership.');
+      }
+      await verifyLocalDevicePossession(gate.keys, gate.session.grant);
+      const deviceId = gate.session.deviceId;
+      const isConfigured = await hasAccessPassphrase(deviceId);
+      if (!isConfigured) {
+        if (gate.session.accessPassphraseConfigured) throw new Error('Device credential missing; recovery required.');
+        if (!credentialSetupRequired || !confirmation) throw new Error('Passphrase setup is required for this enrolled device.');
+        if (passphrase !== confirmation) throw new Error('The two passphrase entries do not match.');
+        await establishAccessPassphrase(deviceId, passphrase);
+        await saveEnrollmentSession({ ...gate.session, accessPassphraseConfigured: true });
+        setCredentialSetupRequired(false);
+        setSignInError('Device protected. Enter your passphrase to sign in.');
+        return; // Setting a passphrase never auto-unlocks.
+      }
+      await requireAccessPassphrase(deviceId, passphrase);
+      await hydrateEncryptedFeed(gate.session);
+      setSession(gate.session);
+      setDeviceKeys(gate.keys);
+      setLockReason(null);
+      setBootPhase('enrolled');
+    } catch (error) {
+      setSession(null);
+      setDeviceKeys(null);
+      setSignInError(error instanceof Error ? error.message : 'Device verification failed.');
+      setBootPhase('sign-in');
+    } finally {
+      setSignInBusy(false);
+    }
+  };
+
+  // LEEWAY_ENTRY_POLICY_V1 — lock on background/foreground and after BFCache restore.
+  useEffect(() => { bootPhaseRef.current = bootPhase; }, [bootPhase]);
+  useEffect(() => {
+    const relock = () => {
+      if (bootPhaseRef.current === 'checking') return;
+      hasLeftForegroundRef.current = true;
+      // Security boundary: stop live media immediately before requiring re-entry.
+      try { captureRef.current?.stop(); } catch { /* device capture may already be stopped */ }
+      captureRef.current = null;
+      recordingRef.current = false;
+      setRecording(false);
+      setRecSeconds(0);
+      setRoomLive(false);
+      setRoomModalOpen(false);
+      setVoiceBursts([]);
+      setTexts([]);
+      setSnaps([]);
+      setStoredEnvelopes([]); // React memory cleared; encrypted IndexedDB queue retained.
+      setMediaUrls({});
+      setSession(null);
+      setDeviceKeys(null);
+      setSignInError(null);
+      setBootPhase('checking');
+    };
+    const onVisibility = () => {
+      if (document.visibilityState === 'hidden') relock();
+      else if (hasLeftForegroundRef.current) {
+        hasLeftForegroundRef.current = false;
+        setEntryCycle((cycle) => cycle + 1);
+      }
+    };
+    const onPageShow = (event: PageTransitionEvent) => {
+      if (event.persisted && bootPhaseRef.current !== 'checking') {
+        relock();
+        hasLeftForegroundRef.current = false;
+        setEntryCycle((cycle) => cycle + 1);
+      }
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+    window.addEventListener('pageshow', onPageShow);
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener('pageshow', onPageShow);
+    };
+  }, []);
+
+  // Mandatory fail-closed startup gate: minimum six seconds, every entry cycle.
   useEffect(() => {
     let cancelled = false;
+    const splashStart = performance.now();
     const runGate = async () => {
       const inviteFromUrl =
         typeof window !== 'undefined'
           ? new URLSearchParams(window.location.search).get('invite')
           : null;
 
-      const gate = await evaluateEnrollmentGate();
+      // Qualification can finish quickly, but the Creator's full logo stays
+      // visible for at least 6000 ms before any sign-in screen is shown.
+      let gate: Awaited<ReturnType<typeof evaluateEnrollmentGate>> | null = null;
+      let gateError: string | null = null;
+      try { gate = await evaluateEnrollmentGate(); }
+      catch (error) { gateError = error instanceof Error ? error.message : 'Enrollment verification unavailable.'; }
+      await holdSplashSince(splashStart);
       if (cancelled) return;
+      if (!gate) {
+        setSession(null);
+        setDeviceKeys(null);
+        setSignInDevice(null);
+        setLockReason(gateError ?? 'Unable to verify enrollment.');
+        setBootPhase('sign-in');
+        return;
+      }
 
       if (gate.status === 'enrolled') {
-        setSession(gate.session);
-        setDeviceKeys(gate.keys);
+        setSession(null);
+        setDeviceKeys(null);
+        setSignInDevice({
+          userName: gate.session.userName,
+          circleName: gate.session.circleName,
+          role: gate.session.role,
+        });
         setLockReason(null);
-        await hydrateEncryptedFeed(gate.session);
-        if (!cancelled) setBootPhase('enrolled');
+        try {
+          const configured = await hasAccessPassphrase(gate.session.deviceId);
+          if (!configured && gate.session.accessPassphraseConfigured) {
+            setSignInDevice(null); // Missing verifier after prior setup: never silently reset access.
+            setLockReason('Sign-in credential unavailable. Recover or re-enroll this device.');
+          } else setCredentialSetupRequired(!configured);
+        } catch (error) {
+          setSignInDevice(null);
+          setLockReason(error instanceof Error ? error.message : 'Device sign-in store unavailable.');
+        }
+        if (!cancelled) setBootPhase('sign-in');
         return;
       }
 
       if (gate.status === 'pending') {
         setPendingMember(gate.pending);
-        setBootPhase('member-join');
+        setBootPhase('sign-in'); // Join My Family resumes existing request.
         return;
       }
 
       setSession(null);
       setDeviceKeys(null);
+      setSignInDevice(null);
       setLockReason(gate.reason ?? null);
-      if (inviteFromUrl) {
-        setInitialInviteParam(inviteFromUrl);
-        setBootPhase('member-join');
-      } else {
-        setBootPhase('welcome');
-      }
+      if (inviteFromUrl) setInitialInviteParam(inviteFromUrl);
+      setBootPhase('sign-in'); // Invite is held for Join My Family after the sign-in welcome.
     };
 
     void runGate();
     return () => {
       cancelled = true;
     };
-  }, [hydrateEncryptedFeed]);
+  }, [hydrateEncryptedFeed, entryCycle]);
 
   // Listen for live sync events (join requests, revocations, incoming encrypted messages)
   useEffect(() => {
@@ -439,7 +564,11 @@ export default function App() {
       setTexts(welcomeRes.messages);
       await encryptAndPersistItem('text', welcomeRes.messages[0], nextSession);
     }
-    setBootPhase('enrolled');
+    setSignInDevice({ userName: nextSession.userName, circleName: nextSession.circleName, role: nextSession.role });
+    setCredentialSetupRequired(!(await hasAccessPassphrase(nextSession.deviceId)));
+    setSession(null);
+    setDeviceKeys(null);
+    setBootPhase('sign-in');
   };
 
   const handleMemberUnlocked = async (
@@ -451,13 +580,18 @@ export default function App() {
     setPendingMember(null);
     setLockReason(null);
     await hydrateEncryptedFeed(nextSession);
-    setBootPhase('enrolled');
+    setSignInDevice({ userName: nextSession.userName, circleName: nextSession.circleName, role: nextSession.role });
+    setCredentialSetupRequired(!(await hasAccessPassphrase(nextSession.deviceId)));
+    setSession(null);
+    setDeviceKeys(null);
+    setBootPhase('sign-in');
   };
 
   const handleResetLocalDevice = async () => {
     await clearEnrollmentSession();
     await clearPendingMemberEnrollment();
     await clearProtectedDeviceKeys();
+    setSignInDevice(null);
     setSecuritySheetOpen(false);
     setRoomModalOpen(false);
     setTextModalOpen(false);
@@ -730,6 +864,25 @@ export default function App() {
   // STRICT ENROLLMENT GATE: Nothing in Dispatch, Walkie, Media, or Video Room renders until valid enrollment completes
   if (bootPhase === 'checking') {
     return <LeeWayLoadingScreen t={t} />;
+  }
+
+  if (bootPhase === 'sign-in') {
+    return (
+      <SecureSignIn
+        t={t}
+        lang={lang}
+        onChangeLang={setLang}
+        device={signInDevice}
+        lockReason={lockReason}
+        error={signInError}
+        busy={signInBusy}
+        credentialSetupRequired={credentialSetupRequired}
+        onSignIn={handleSignIn}
+        onCreatePrivateLine={() => { setLockReason(null); setBootPhase('owner-setup'); }}
+        onJoinFamily={() => { setLockReason(null); setBootPhase('member-join'); }}
+        onRecover={() => setBootPhase('welcome')}
+      />
+    );
   }
 
   if (bootPhase === 'welcome') {

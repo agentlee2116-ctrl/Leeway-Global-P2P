@@ -71,5 +71,32 @@ jobs:
         with:
           path: pages-dist
 
+      # GitHub upload finalized the artifact, but Pages metadata was not yet queryable.
+      # Poll this run's artifact index for at most 90 seconds. Never report a fake PASS.
+      - name: Wait for GitHub Pages artifact metadata
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          found=0
+          for attempt in $(seq 1 30); do
+            count=$(gh api "/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts?per_page=100" --jq '[.artifacts[] | select(.name == "github-pages" and .expired == false)] | length' 2>/dev/null || echo 0)
+            if [ "$count" = "1" ]; then
+              found=1
+              break
+            fi
+            if [ "$count" != "0" ]; then
+              echo "Unexpected GitHub Pages artifact count: $count" >&2
+              exit 1
+            fi
+            sleep 3
+          done
+          if [ "$found" != "1" ]; then
+            echo 'Timed out waiting for the GitHub Pages artifact metadata.' >&2
+            exit 1
+          fi
+          echo 'GitHub Pages artifact metadata is queryable.'
+          sleep 5
+
       - id: deployment
         uses: actions/deploy-pages@v4

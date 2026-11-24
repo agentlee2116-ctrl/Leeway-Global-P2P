@@ -11,7 +11,6 @@ WHY: Offline-first LeeWay walkie-talkie dispatch for families across regions
 HOW: Governed source reusing LeeWay contracts; no competing authority; evidence-backed verification
 */
 import { useState } from 'react';
-import { ShieldCheck } from 'lucide-react';
 
 export const LEEWAY_LOGO_SRC = './assets/aistudio/leewaysmalllogo_698be64f.png';
 
@@ -24,10 +23,10 @@ interface LeeWayLogoProps {
 
 const SIZE_MAP = {
   xs: 'w-7 h-7 rounded-lg',
-  sm: 'w-8 h-8 rounded-lg',
-  md: 'w-10 h-10 rounded-xl',
-  lg: 'w-14 h-14 rounded-2xl',
-  crest: 'w-24 h-32 sm:w-28 sm:h-36 rounded-2xl',
+  sm: 'w-8 h-11 rounded-lg',
+  md: 'w-10 h-14 rounded-xl',
+  lg: 'w-14 h-20 rounded-2xl',
+  crest: 'w-24 h-36 sm:w-28 sm:h-40 rounded-2xl',
 } as const;
 
 const TEXT_SIZE_MAP = {
@@ -60,12 +59,12 @@ export function LeeWayLogo({
             onError={() => setImgFailed(true)}
             className={
               isCrest
-                ? 'w-full h-full object-contain scale-[1.04]'
-                : 'w-full h-full object-cover object-[50%_26%] scale-[1.16]'
+                ? 'w-full h-full object-contain'
+                : 'w-full h-full object-contain'
             }
           />
         ) : (
-          <ShieldCheck className="w-5 h-5 text-amber-400" aria-hidden="true" />
+          <span role="status" className="px-0.5 text-center text-[8px] font-semibold text-amber-200">Logo unavailable</span>
         )}
       </div>
 
