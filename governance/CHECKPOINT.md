@@ -13,7 +13,7 @@ HOW: Governed source reusing LeeWay contracts; no competing authority; evidence-
 # LeeWay Global P2P — Checkpoint
 
 **Date:** 2026-11-24
-**Active gate:** Secure communications integration repair (scoped branch `repair/secure-comms-integration-20261124`). UI integration is deployed; secure communications is NOT complete.
+**Active gate:** Secure communications integration repair (scoped branch `repair/secure-comms-integration-20261124`). Implemented locally: public-metadata key removal, per-recipient ECDH/HKDF, relay/RTC bridge, real PTT capture, real video-room signaling, relay enrollment transport, 70-locale reconciliation, standalone HTML. Branch under review; `main` remains at `83c6deb`. Physical two-device gates remain NOT VERIFIED.
 
 ## Current published state
 

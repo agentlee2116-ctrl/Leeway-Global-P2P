@@ -12,6 +12,8 @@ HOW: Governed source reusing LeeWay contracts; no competing authority; evidence-
 */
 // Canonical Enrollment, Membership & Web Crypto Security System for LeeWay Global P2P
 // Uses non-extractable ECDSA P-256 + ECDH P-256 device keys stored in IndexedDB (never plaintext JWKs in localStorage).
+// Message confidentiality reuses the canonical ECDH/HKDF/AES-GCM contracts in src/core/crypto.ts.
+import { decryptFrom, encryptFor } from '../core/crypto.ts';
 
 export type GrantPeriod = '6m' | '1y';
 export type InviteTtlMinutes = 15 | 60 | 1440;
@@ -160,6 +162,19 @@ export interface EncryptedEnvelope {
   version: 1;
   circleId: string;
   senderDeviceId: string;
+  senderFingerprint?: string;
+  /** Per-recipient ECDH/HKDF/AES-GCM copies produced by src/core/crypto.ts. */
+  recipientEnvelopes?: Array<{
+    deviceId: string;
+    envelope: {
+      v: 1;
+      alg: string;
+      ephemeral: JsonWebKey;
+      iv: string;
+      ciphertext: string;
+    };
+  }>;
+  /** Legacy fields are retained only so older stored envelopes remain readable. */
   iv: string;
   ciphertext: string;
   recipientDeviceIds: string[];
@@ -879,21 +894,15 @@ export async function restoreFromRecoveryKit(
   };
 }
 
-async function deriveCircleSessionKey(
-  circleId: string,
-  ownerFingerprint: string
-): Promise<CryptoKey> {
-  const cryptoApi = getWebCrypto();
-  const seed = new TextEncoder().encode(`leeway-p2p:${circleId}:${ownerFingerprint}`);
-  const hash = await cryptoApi.subtle.digest('SHA-256', seed);
-  return cryptoApi.subtle.importKey(
-    'raw',
-    hash,
-    { name: 'AES-GCM', length: 256 },
-    false,
-    ['encrypt', 'decrypt']
-  );
+/**
+ * REMOVED: public metadata (circleId + ownerFingerprint) is not a secret and
+ * must never derive a message key. Kept as a hard fail-closed guard so a
+ * regression cannot silently reintroduce the vulnerability.
+ */
+function deriveCircleSessionKey(_circleId: string, _ownerFingerprint: string): never {
+  throw new Error('SECURITY: public circle metadata must not be used as an encryption key');
 }
+void deriveCircleSessionKey;
 
 // Fail-closed encryption: verifies valid active grant and excludes revoked devices from recipient list
 export async function encryptCircleMessage(params: {
@@ -910,33 +919,36 @@ export async function encryptCircleMessage(params: {
   if (!grantCheck.ok) {
     throw new Error(`Fail-closed: ${grantCheck.reason}`);
   }
-  const activeRecipients = params.authorityMembers
-    .filter((m) => !m.revoked && !params.revokedDeviceIds.includes(m.deviceId))
-    .map((m) => m.deviceId);
+  const activeMembers = params.authorityMembers.filter(
+    (m) => !m.revoked && !params.revokedDeviceIds.includes(m.deviceId) && !!m.ecdhPubJwk,
+  );
+  const activeRecipients = activeMembers.map((m) => m.deviceId);
 
   if (!activeRecipients.includes(params.senderGrant.memberDeviceId)) {
     throw new Error('Fail-closed: sender device is not an active member of this circle.');
   }
 
-  const cryptoApi = getWebCrypto();
-  const iv = new Uint8Array(12);
-  cryptoApi.getRandomValues(iv);
-  const aesKey = await deriveCircleSessionKey(
-    params.senderGrant.circleId,
-    params.senderGrant.ownerFingerprint
-  );
-  const cipherBuf = await cryptoApi.subtle.encrypt(
-    { name: 'AES-GCM', iv },
-    aesKey,
-    new TextEncoder().encode(params.plaintext)
-  );
+  // Canonical per-recipient ECDH/HKDF/AES-GCM. Public circle metadata is never
+  // used as key material; every copy is encrypted to one member's public ECDH key.
+  const recipientEnvelopes: NonNullable<EncryptedEnvelope['recipientEnvelopes']> = [];
+  for (const member of activeMembers) {
+    const envelope = await encryptFor(
+      params.plaintext,
+      member.ecdhPubJwk,
+      params.senderGrant.memberFingerprint,
+    );
+    recipientEnvelopes.push({ deviceId: member.deviceId, envelope });
+  }
 
   return {
     version: 1,
     circleId: params.senderGrant.circleId,
     senderDeviceId: params.senderGrant.memberDeviceId,
-    iv: bytesToBase64(iv),
-    ciphertext: bytesToBase64(new Uint8Array(cipherBuf)),
+    senderFingerprint: params.senderGrant.memberFingerprint,
+    recipientEnvelopes,
+    // Legacy shared-ciphertext fields are intentionally empty: no shared key exists.
+    iv: '',
+    ciphertext: '',
     recipientDeviceIds: activeRecipients,
     createdAt: params.now ?? Date.now(),
   };
@@ -962,18 +974,18 @@ export async function decryptCircleMessage(params: {
     throw new Error('Fail-closed: this device is not an authorized recipient for this message.');
   }
 
-  const cryptoApi = getWebCrypto();
-  const aesKey = await deriveCircleSessionKey(
-    params.recipientGrant.circleId,
-    params.recipientGrant.ownerFingerprint
+  const copy = params.envelope.recipientEnvelopes?.find(
+    (entry) => entry.deviceId === params.recipientGrant!.memberDeviceId,
   );
-  const iv = base64ToBytes(params.envelope.iv);
-  const cipherBytes = base64ToBytes(params.envelope.ciphertext);
-
-  const plainBuf = await cryptoApi.subtle.decrypt(
-    { name: 'AES-GCM', iv: toArrayBuffer(iv) },
-    aesKey,
-    toArrayBuffer(cipherBytes)
-  );
-  return new TextDecoder().decode(plainBuf);
+  if (!copy) {
+    throw new Error('Fail-closed: no per-recipient encrypted copy for this device. Legacy shared-key envelopes are rejected.');
+  }
+  const deviceKeys = await loadDeviceKeysProtected(params.recipientGrant.memberDeviceId);
+  if (!deviceKeys) {
+    throw new Error('Fail-closed: protected device keys are unavailable.');
+  }
+  return decryptFrom({
+    ...copy.envelope,
+    alg: copy.envelope.alg as 'ECDH-P256/HKDF-SHA256/AES-256-GCM',
+  }, deviceKeys.ecdhKeyPair.privateKey, params.envelope.senderFingerprint ?? '');
 }

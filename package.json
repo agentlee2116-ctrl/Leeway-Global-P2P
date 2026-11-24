@@ -9,13 +9,14 @@
     "build": "tsc --noEmit -p tsconfig.json && vite build",
     "preview": "vite preview --host 0.0.0.0",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "test": "tsx --test tests/*.test.ts",
+    "test": "tsx --test tests/*.test.ts src/utils/*.test.ts",
     "test:relay": "node relay/relay-selftest.mjs",
     "validate:workflows": "node scripts/validate-workflows.mjs",
-    "verify": "npm run typecheck && npm test && npm run build && npm run test:relay && npm run validate:workflows",
+    "verify": "npm run typecheck && npm test && npm run build && npm run test:relay && npm run validate:workflows && npm run standalone",
     "relay": "node relay/server.mjs",
     "cap:sync": "npx cap sync android",
     "qr": "node scripts/generate-qr.mjs",
+    "standalone": "npm run build && node scripts/build-standalone.mjs",
     "evidence": "node scripts/write-evidence.mjs"
   },
   "dependencies": {

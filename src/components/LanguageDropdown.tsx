@@ -11,7 +11,7 @@ WHY: Offline-first LeeWay walkie-talkie dispatch for families across regions
 HOW: Governed source reusing LeeWay contracts; no competing authority; evidence-backed verification
 */
 import { ChevronDown, Globe } from 'lucide-react';
-import { LANGUAGE_LIST, type LangCode } from '../utils/i18n';
+import { LANGUAGE_LIST, LOCALE_OPTIONS, type LangCode } from '../utils/i18n';
 
 interface LanguageDropdownProps {
   id: string;
@@ -30,6 +30,12 @@ export function LanguageDropdown({
 }: LanguageDropdownProps) {
   const activeOption =
     LANGUAGE_LIST.find((item) => item.code === value) ?? LANGUAGE_LIST[0];
+  const selectedCode = localStorage.getItem('lwp.ui.locale') ?? value;
+  const selectLocale = (code: string) => {
+    localStorage.setItem('lwp.ui.locale', code);
+    const option = LOCALE_OPTIONS.find((item) => item.code === code);
+    onChange((option?.ui ?? 'en') as LangCode);
+  };
 
   if (variant === 'compact') {
     return (
@@ -50,13 +56,13 @@ export function LanguageDropdown({
         </label>
         <select
           id={id}
-          value={value}
-          onChange={(e) => onChange(e.target.value as LangCode)}
+          value={selectedCode}
+          onChange={(e) => selectLocale(e.target.value)}
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
         >
-          {LANGUAGE_LIST.map((item) => (
+          {LOCALE_OPTIONS.map((item) => (
             <option key={item.code} value={item.code} className="bg-[#0E131A] text-slate-100">
-              {item.shortCode} · {item.nativeName} — {item.englishName}
+              {item.code} · {item.native} — {item.label}
             </option>
           ))}
         </select>
@@ -79,9 +85,9 @@ export function LanguageDropdown({
         onChange={(e) => onChange(e.target.value as LangCode)}
         className="w-full min-h-[48px] appearance-none rounded-2xl bg-[#080B0F] hover:bg-white/[0.03] border border-white/[0.12] focus:border-amber-400 pl-10 pr-10 rtl:pl-10 rtl:pr-10 text-sm font-semibold text-slate-100 cursor-pointer transition-colors focus:outline-none"
       >
-        {LANGUAGE_LIST.map((item) => (
+        {LOCALE_OPTIONS.map((item) => (
           <option key={item.code} value={item.code} className="bg-[#0E131A] text-slate-100">
-            {item.nativeName} — {item.englishName} ({item.shortCode})
+            {item.native} ({item.code}) — {item.label}
           </option>
         ))}
       </select>

@@ -309,3 +309,62 @@ test('encrypted recovery kit restores metadata with passphrase and requires rene
   assert.equal(restored.previousFingerprint, ownerKeys.fingerprint);
   assert.equal(restored.requiresRenewedAuthorization, true);
 });
+
+test('public circle metadata alone cannot decrypt a dispatch', async () => {
+  const ownerKeys = await generateProtectedDeviceKeys('dev-owner-security');
+  const circleId = generateUnpredictableCircleId();
+  const grant = await issueOwnerSelfGrant({
+    ownerKeys,
+    ownerName: 'Leonard',
+    circleId,
+    circleName: 'Lee Family',
+  });
+  const members = [{
+    deviceId: ownerKeys.deviceId,
+    name: 'Leonard',
+    fingerprint: ownerKeys.fingerprint,
+    role: 'owner' as const,
+    permissions: grant.permissions,
+    grantId: grant.grantId,
+    grantPeriod: '1y' as const,
+    issuedAt: grant.issuedAt,
+    expiresAt: grant.expiresAt,
+    revoked: false,
+    signPubJwk: ownerKeys.signPubJwk,
+    ecdhPubJwk: ownerKeys.ecdhPubJwk,
+  }];
+
+  const envelope = await encryptCircleMessage({
+    plaintext: 'CONFIDENTIAL-FAMILY-DISPATCH',
+    senderGrant: grant,
+    authorityMembers: members,
+    revokedDeviceIds: [],
+  });
+
+  assert.equal(await decryptCircleMessage({
+    envelope, recipientGrant: grant, revokedDeviceIds: [],
+  }), 'CONFIDENTIAL-FAMILY-DISPATCH');
+
+  // No shared ciphertext exists for the removed public-metadata key.
+  assert.equal(envelope.ciphertext, '');
+  assert.equal(envelope.iv, '');
+  assert.ok(envelope.recipientEnvelopes && envelope.recipientEnvelopes.length === 1);
+
+  const seed = new TextEncoder().encode(`leeway-p2p:${circleId}:${grant.ownerFingerprint}`);
+  const digest = await crypto.subtle.digest('SHA-256', seed);
+  const attackerKey = await crypto.subtle.importKey('raw', digest, { name: 'AES-GCM' }, false, ['decrypt']);
+  await assert.rejects(() => crypto.subtle.decrypt(
+    { name: 'AES-GCM', iv: new Uint8Array(12) }, attackerKey, new Uint8Array([1, 2, 3, 4]),
+  ));
+
+  const rogue = await generateProtectedDeviceKeys('dev-rogue-security');
+  const rogueGrant = {
+    ...grant,
+    memberDeviceId: rogue.deviceId,
+    memberFingerprint: rogue.fingerprint,
+    memberEcdhPubJwk: rogue.ecdhPubJwk,
+  };
+  await assert.rejects(() => decryptCircleMessage({
+    envelope, recipientGrant: rogueGrant, revokedDeviceIds: [],
+  }), /signature|no per-recipient encrypted copy/);
+});

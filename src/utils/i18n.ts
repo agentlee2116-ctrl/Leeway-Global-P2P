@@ -1009,3 +1009,26 @@ export const I18N: Record<LangCode, Translations> = {
     stepOf: 'Ìgbésẹ̀',
   }),
 };
+
+/* Reconciled 70-locale registry. Only 20 bundles have full UI translations;
+ * every other locale is offered with an explicit English fallback (honest coverage). */
+import { LANGUAGES as CORE_LOCALES } from '../i18n.ts';
+
+export const LOCALE_OPTIONS: Array<{
+  code: string;
+  native: string;
+  ui: LangCode | null;
+  coverage: number;
+  label: string;
+}> = CORE_LOCALES.map(([code, native]) => {
+  const base = code.split('-')[0];
+  const table = I18N as unknown as Record<string, unknown>;
+  const ui = (code in table ? code : base in table ? base : null) as LangCode | null;
+  return {
+    code,
+    native,
+    ui,
+    coverage: ui ? 100 : 0,
+    label: ui ? 'Full translation' : 'English fallback',
+  };
+});
