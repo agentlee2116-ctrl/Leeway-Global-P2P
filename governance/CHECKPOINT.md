@@ -13,26 +13,34 @@ HOW: Governed source reusing LeeWay contracts; no competing authority; evidence-
 # LeeWay Global P2P — Checkpoint
 
 **Date:** 2026-11-24
-**Active gate:** Physical integration and authorized publication remain open. Source, tests, web build, signed APK and offline packaging are complete locally.
+**Active gate:** Secure communications integration repair (scoped branch `repair/secure-comms-integration-20261124`). UI integration is deployed; secure communications is NOT complete.
 
-## Last verified state
+## Current published state
 
-- Canonical repository: `agentlee2116-ctrl/Leeway-Global-P2P` (verified via GitHub API; empty at start of session, default branch `main`).
-- Local workspace: `C:\Users\Leona\workspaces\leeway-global-p2p`.
-- Source repair: unified dispatch contracts, multi-recipient encryption, per-recipient ACKs, mesh/satellite qualification, walkie-talkie UI, 60+ locale selector, Creator logo.
-- Tests: typecheck, unit/integration tests, negative gateway cases, relay selftest — see `docs/VERIFICATION.md`.
-- Artifacts: signed release APK in `release/`, QR in `site/leeway-qr.png`.
+- Canonical repository: `agentlee2116-ctrl/Leeway-Global-P2P` (branch `main`). No other destination.
+- Deployed commit: **`83c6deb042aac62bbe02b8fdfc631f40509ed6d7`** — corrected Creator-approved UI layer.
+- CI on deployed commit: run **`45403363967`** SUCCESS (38/38 core tests, 13/13 relay tests, workflow validation 2/2).
+- Pages deployment: run **`45404029161`** SUCCESS. Site `https://agentlee2116-ctrl.github.io/Leeway-Global-P2P/`, app at `/app/`.
+- Published APK: `release/leeway-global-p2p-v1.0.0-release.apk`, SHA-256 `f451712d6e9730ec561dbeb965c5ca5af251a5e45a51b8f6a23112c42dbd565f`, signature verified; QR points to the Pages download URL.
+- Local workspace is a working clone only; no drive path is part of product identity (R10/R25).
 
-## Open gates (unchanged from the original mission)
+## Critical defect under repair
 
-1. GitHub write permission for the connected integration; push remains blocked until granted. No PAT requested in chat.
-   - Exact denial (recorded once): `git push -u origin main` → `remote: Permission to agentlee2116-ctrl/Leeway-Global-P2P.git denied to 4citeB4U.` / `The requested URL returned error: 403` / exit 128.
-   - Local ready-to-publish commit: `ca6eeb779052593f062ce2ae80fb9245e2c5c954` on branch `main`, remote `https://github.com/agentlee2116-ctrl/Leeway-Global-P2P.git`.
-   - No force-push and no alternate repository was used.
-2. Physical LeeWay Device Bridge mesh or authorized satellite adapter for real transmission.
-3. Two-device field messaging with signed ACKs.
-4. Independent production verification and governance admission (Veritas/receipts/Learning Ledger) — not claimed here.
+The deployed UI's enrollment layer derives a message encryption key from public metadata (`deriveCircleSessionKey(circleId, ownerFingerprint)`). This is not confidentiality. The repair replaces it with per-recipient ECDH/HKDF/AES-GCM from `src/core/crypto.ts` and adds negative confidentiality tests. Until that repair is reviewed and merged, the published UI must not be described as secure for private communications.
+
+## Historical evidence (preserved, not current)
+
+- Earlier push denial: `git push -u origin main` → `remote: Permission to agentlee2116-ctrl/Leeway-Global-P2P.git denied to 4citeB4U.` / HTTP 403 / exit 128. Resolved later with the repository owner's authenticated account; remote HEAD advanced to `83c6deb`.
+- Earlier CI failures before repair: `45382548979` (invalid YAML headers), `45382718293` (obsolete setup-android `tools` package), `45382866049` (`sdkmanager` not on PATH). All repaired; do not re-litigate.
+- Earlier Pages deploy failures `45403577176` were transient artifact-propagation errors; a fresh dispatch (`45404029161`) succeeded.
+
+## Open gates
+
+1. Merge the scoped security/communications repair via reviewed PR; do not silently replace the published APK.
+2. Physical LeeWay Device Bridge mesh or authorized satellite adapter for real transmission — NOT VERIFIED.
+3. Two-device field messaging with signed ACKs, real audio and video — NOT VERIFIED.
+4. Independent production verification and governance admission (Veritas/receipts/Learning Ledger) — not claimed.
 
 ## On interruption
 
-Resume at the active gate. Do not restart the mission, do not invent a new authority, and do not report a blocked push as completed.
+Resume at the active gate. Preserve `main` at `83c6deb`; continue the scoped repair branch. Do not invent authority, receipts, physical tests, or security approval.
