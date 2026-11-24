@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">LeeWay Global P2P</string>
+    <string name="title_activity_main">LeeWay Global P2P</string>
+    <string name="package_name">com.leeway.global.p2p</string>
+    <string name="custom_url_scheme">com.leeway.global.p2p</string>
+</resources>

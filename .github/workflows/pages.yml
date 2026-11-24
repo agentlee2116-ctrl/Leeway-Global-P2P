@@ -1,0 +1,80 @@
+<!--
+LEEWAY_HEADER - DO NOT REMOVE
+REGION: PRODUCT
+TAG: PRODUCT.LEEWAY_GLOBAL_P2P.PAGES
+DISCOVERY_PIPELINE: Voice -> Intent -> Location -> Vertical -> Ranking -> Render
+WHO: LeeWay Creator / LeeWay Global P2P engineering
+WHAT: Governed LeeWay Global P2P source: .github\workflows\pages.yml
+WHEN: 2026-11-24
+WHERE: agentlee2116-ctrl/Leeway-Global-P2P/.github/workflows/pages.yml
+WHY: Offline-first LeeWay walkie-talkie dispatch for families across regions
+HOW: Governed source reusing LeeWay contracts; no competing authority; evidence-backed verification
+-->
+name: LeeWay Global P2P — GitHub Pages
+
+on:
+  workflow_run:
+    workflows: ['LeeWay Global P2P — verify and signed Android release']
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install and build universal Web/PWA app
+        run: |
+          npm config set allow-scripts true
+          npm ci
+          npm run build
+
+      - name: Download signed APK artifact when available
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: leeway-global-p2p-signed-apk
+          path: downloaded-apk
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Assemble Pages site
+        run: |
+          mkdir -p pages-dist/app pages-dist/downloads
+          cp -r site/. pages-dist/
+          cp -r dist/. pages-dist/app/
+          cp docs/VERIFICATION.md pages-dist/app/VERIFICATION.md
+          if compgen -G "downloaded-apk/*.apk" > /dev/null; then
+            cp downloaded-apk/*.apk pages-dist/downloads/
+            cp downloaded-apk/SHA256SUMS.txt pages-dist/downloads/
+          fi
+          QR_OUT=pages-dist/leeway-qr.png node scripts/generate-qr.mjs
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: pages-dist
+
+      - id: deployment
+        uses: actions/deploy-pages@v4

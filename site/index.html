@@ -1,0 +1,81 @@
+<!--
+LEEWAY_HEADER - DO NOT REMOVE
+REGION: PRODUCT
+TAG: PRODUCT.LEEWAY_GLOBAL_P2P.INDEX
+DISCOVERY_PIPELINE: Voice -> Intent -> Location -> Vertical -> Ranking -> Render
+WHO: LeeWay Creator / LeeWay Global P2P engineering
+WHAT: Governed LeeWay Global P2P source: site\index.html
+WHEN: 2026-11-24
+WHERE: agentlee2116-ctrl/Leeway-Global-P2P/site/index.html
+WHY: Offline-first LeeWay walkie-talkie dispatch for families across regions
+HOW: Governed source reusing LeeWay contracts; no competing authority; evidence-backed verification
+-->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LeeWay Global P2P — secure mesh communications</title>
+  <style>
+    :root{color-scheme:dark;--bg:#050914;--panel:#0d1628;--line:#1e2f4d;--accent:#36d6ff;--muted:#9db2d0;--warn:#ffc857}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(1000px 500px at 50% -200px,#12325c,var(--bg) 60%);color:#e8f2ff;font:16px/1.55 Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+    main{max-width:960px;margin:auto;padding:28px 18px 80px}h1{font-size:30px;margin:6px 0}h2{font-size:19px;margin-top:30px;color:var(--accent)}
+    .tag{color:var(--muted)}.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;margin:14px 0}.logo{max-height:180px;object-fit:contain}
+    .row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start}a.btn,button{display:inline-block;background:var(--accent);color:#04121d;border:0;border-radius:9px;padding:11px 16px;font-weight:700;text-decoration:none}
+    .muted{color:var(--muted)}.warn{color:var(--warn)}code{color:var(--accent);word-break:break-all}img.qr{width:210px;height:210px;background:#fff;padding:8px;border-radius:10px}
+    table{width:100%;border-collapse:collapse;font-size:14px}td,th{border-bottom:1px solid var(--line);padding:8px;text-align:left;vertical-align:top}th{color:var(--accent)}
+  </style>
+</head>
+<body>
+<main>
+  <p align="center"><img class="logo" src="./leeway-logo.png" alt="LeeWay logo" width="150" /></p>
+  <h1 style="text-align:center">LeeWay <span style="color:var(--accent)">Global P2P</span></h1>
+  <p class="tag">Offline-first <strong>walkie-talkie dispatch</strong> for the LeeWay ecosystem: text dispatches, push-to-talk voice bursts, photo and video snaps, and store-and-forward bundles. Sixty-plus selectable interface languages. Built on local mesh, community mesh and authorized satellite gateways — not on carrier subscriptions.</p>
+
+  <div class="card row">
+    <a class="btn" href="./app/">Launch the web / PWA app</a>
+    <a class="btn" href="./downloads/leeway-global-p2p-v1.0.0-release.apk" download>Download signed Android APK</a>
+    <img class="qr" src="./leeway-qr.png" alt="QR code for the signed APK download URL" />
+  </div>
+
+  <h2>Install</h2>
+  <div class="card">
+    <p><strong>Android (online or offline):</strong> download the signed APK above, or scan the QR code with a phone camera. Android may ask to allow installation from unknown sources. Open the APK to install. No Play account, carrier plan or subscription is needed.</p>
+    <p><strong>Offline / physical delivery:</strong> copy <code>leeway-global-p2p-v1.0.0-release.apk</code> by USB, SD card, Bluetooth/nearby share or courier, then open it on the target device. Verify the SHA-256 below before installing.</p>
+    <p><strong>Web / PWA:</strong> open <a href="./app/">the app</a> in a modern browser and use your browser's “Install app / Add to home screen” action. The service worker caches the app shell for offline opening.</p>
+    <p class="muted">SHA-256: <code>6fb6c692325f53a0e92d48a4b37dc362ac4468e809e3bb91bcfc331d28c0d6ea</code></p>
+  </div>
+
+  <h2>What works without the internet</h2>
+  <div class="card">
+    <p>Opening the app, reading stored messages, signing and encrypting messages, generating pairing QR codes, and exporting/importing encrypted file and video-clip bundles for manual delivery all work offline. Queued messages are retried when a link becomes available and expire according to their TTL.</p>
+    <p>Distant communication needs a real path: a local mesh peer, a community mesh gateway, an authorized satellite gateway, or a nearby relay. If none is available, the app reports “no qualified route” and keeps messages queued — it never pretends a message was delivered.</p>
+  </div>
+
+  <h2>Network honesty</h2>
+  <div class="card">
+    <table>
+      <tr><th>Path</th><th>Status</th></tr>
+      <tr><td>Direct WebRTC / local mesh</td><td>Available when peers and signaling are reachable; uses browser-native encryption plus app-layer E2E encryption.</td></tr>
+      <tr><td>Community / public mesh gateways</td><td>Requires a trusted, signed gateway declaration with a valid capability token. Meshtastic-style MQTT bridges need an internet-connected gateway.</td></tr>
+      <tr><td>Satellite</td><td class="warn">Requires a real authorized satellite terminal or gateway. Satellite tracking/map data is not a message uplink. The app reports NOT VERIFIED until a qualified gateway is registered.</td></tr>
+      <tr><td>Internet relay</td><td>Optional IPv4/IPv6 WebSocket relay for signaling and fallback. Self-hosted; no paid carrier dependency.</td></tr>
+    </table>
+    <p class="muted">Licensing note: amateur-satellite links carry restrictions, including limits on encrypted transmissions in some jurisdictions. Use only gateways you are authorized to operate.</p>
+  </div>
+
+  <h2>Family rollout (three steps)</h2>
+  <div class="card">
+    <p><strong>1. Get the app:</strong> open this page on any phone, tablet or computer and install the PWA, or install the signed APK on Android. For iPhone/iOS, use the web app and “Add to Home Screen”.</p>
+    <p><strong>2. Join the family circle:</strong> import the signed invite link or identity bundle. The app verifies the member's key fingerprint and room; a URL alone is never trusted.</p>
+    <p><strong>3. First walkie-talkie test:</strong> send a text dispatch, a push-to-talk burst and a snap. Watch per-recipient confirmations. If someone is offline, the dispatch stays queued or can be exported as an encrypted bundle.</p>
+    <p class="muted">QR codes are for face-to-face pairing. Across countries, use the hosted link or an encrypted bundle file; a QR cannot cross an ocean by itself. Full guide: <a href="./app/FAMILY-ONBOARDING.md">Family onboarding</a>.</p>
+  </div>
+
+  <h2>Verification</h2>
+  <div class="card">
+    <p>Source, build commands, tests, negative cases, signature checks and known blockers are recorded in <a href="./app/VERIFICATION.md">VERIFICATION.md</a> and in the repository. No result is claimed without executed evidence.</p>
+  </div>
+</main>
+</body>
+</html>

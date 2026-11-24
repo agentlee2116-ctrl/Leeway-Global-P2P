@@ -1,0 +1,44 @@
+{
+  "name": "leeway-global-p2p",
+  "version": "1.0.0",
+  "private": true,
+  "description": "LeeWay Global P2P - offline-first, mesh and satellite-gateway-aware secure communications for the LeeWay ecosystem",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "tsc --noEmit -p tsconfig.json && vite build",
+    "preview": "vite preview --host 0.0.0.0",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "tsx --test tests/*.test.ts",
+    "test:relay": "node relay/relay-selftest.mjs",
+    "verify": "npm run typecheck && npm test && npm run build && npm run test:relay",
+    "relay": "node relay/server.mjs",
+    "cap:sync": "npx cap sync android",
+    "qr": "node scripts/generate-qr.mjs",
+    "evidence": "node scripts/write-evidence.mjs"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.2.3",
+    "@capacitor/core": "^6.2.3",
+    "qrcode": "^1.5.4",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "ws": "^8.18.3"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.2.3",
+    "@types/node": "^22.15.3",
+    "@types/qrcode": "^1.5.6",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "@types/ws": "^8.18.1",
+    "@vitejs/plugin-react": "^4.7.0",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true,
+    "esbuild@0.25.12": true
+  }
+}

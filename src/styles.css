@@ -1,0 +1,89 @@
+/*
+LEEWAY_HEADER - DO NOT REMOVE
+REGION: PRODUCT
+TAG: PRODUCT.LEEWAY_GLOBAL_P2P.STYLES
+DISCOVERY_PIPELINE: Voice -> Intent -> Location -> Vertical -> Ranking -> Render
+WHO: LeeWay Creator / LeeWay Global P2P engineering
+WHAT: Governed LeeWay Global P2P source: src\styles.css
+WHEN: 2026-11-24
+WHERE: agentlee2116-ctrl/Leeway-Global-P2P/src/styles.css
+WHY: Offline-first LeeWay walkie-talkie dispatch for families across regions
+HOW: Governed source reusing LeeWay contracts; no competing authority; evidence-backed verification
+*/
+:root {
+  color-scheme: dark;
+  --bg: #050914;
+  --panel: #0d1628;
+  --line: #1e2f4d;
+  --accent: #36d6ff;
+  --text: #e8f2ff;
+  --muted: #8ea5c4;
+  --ok: #4be3a0;
+  --warn: #ffc857;
+  --err: #ff7a7a;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: radial-gradient(1200px 600px at 50% -200px, #12325c 0%, var(--bg) 60%); color: var(--text); min-height: 100vh; }
+.app { max-width: 900px; margin: 0 auto; padding: 16px 16px 80px; }
+header { padding: 18px 4px 8px; }
+.brand-row { display: flex; align-items: center; gap: 14px; }
+.brand-logo { height: 56px; width: auto; border-radius: 8px; }
+.language-row { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 13px; color: var(--muted); }
+.language-row select { width: auto; min-width: 190px; margin: 0; }
+.brand { font-size: 22px; letter-spacing: .3px; }
+.brand strong { color: var(--accent); }
+.dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 12px var(--accent); margin-right: 8px; }
+.sub { color: var(--muted); font-size: 13px; margin-top: 4px; }
+.update-banner { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; background: #123a2c; border: 1px solid var(--ok); color: #dff8ec; border-radius: 10px; padding: 10px 14px; margin-top: 12px; font-size: 13px; }
+.update-banner button { white-space: nowrap; }
+select { background: #07101f; border: 1px solid var(--line); color: var(--text); border-radius: 8px; padding: 9px 10px; font: inherit; }
+nav { display: flex; gap: 6px; margin: 14px 0; flex-wrap: wrap; }
+nav button { background: transparent; border: 1px solid var(--line); color: var(--muted); padding: 8px 14px; border-radius: 999px; cursor: pointer; text-transform: capitalize; }
+nav button.active { background: var(--accent); color: #04121d; border-color: var(--accent); font-weight: 700; }
+.card { background: linear-gradient(180deg, rgba(17,31,55,.9), rgba(10,18,33,.9)); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+.card h3 { margin: 0 0 10px; font-size: 16px; }
+.card h4 { margin: 18px 0 8px; font-size: 13px; color: var(--accent); }
+.muted { color: var(--muted); font-size: 13px; line-height: 1.5; }
+.warn { color: var(--warn); font-size: 13px; line-height: 1.5; }
+.ok { color: var(--ok); }
+.error { color: var(--err); font-size: 12px; margin-top: 6px; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+button { background: var(--accent); color: #04121d; border: 0; border-radius: 8px; padding: 9px 14px; font-weight: 650; cursor: pointer; }
+button:disabled { opacity: .4; cursor: not-allowed; }
+button.danger { background: var(--err); }
+button:not(nav button) { }
+input, textarea { width: 100%; background: #07101f; border: 1px solid var(--line); color: var(--text); border-radius: 8px; padding: 10px 12px; margin: 6px 0; font: inherit; }
+textarea { min-height: 84px; resize: vertical; font-family: ui-monospace, monospace; font-size: 12px; }
+.status-card { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px 16px; }
+.status-card div { display: flex; flex-direction: column; gap: 2px; }
+.label { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .6px; }
+.value { font-size: 13px; word-break: break-all; }
+.message-list { max-height: 46vh; overflow-y: auto; }
+.msg { border-left: 3px solid var(--line); padding: 8px 12px; margin-bottom: 8px; background: rgba(255,255,255,.02); border-radius: 6px; }
+.msg.sent { border-left-color: var(--accent); }
+.msg.delivered { border-left-color: var(--ok); }
+.msg.queued { border-left-color: var(--warn); }
+.msg.expired, .msg.failed { border-left-color: var(--err); }
+.msg-head { display: flex; gap: 10px; align-items: center; font-size: 12px; color: var(--muted); }
+.msg-head strong { color: var(--text); }
+.badge { margin-left: auto; border: 1px solid var(--line); border-radius: 999px; padding: 2px 8px; font-size: 10px; }
+.msg-body { margin-top: 6px; white-space: pre-wrap; word-break: break-word; }
+.ack { color: var(--ok); font-size: 11px; margin-top: 5px; }
+.composer { display: flex; gap: 8px; align-items: center; }
+.composer input { margin: 0; }
+.composer button { white-space: nowrap; }
+.qr { background: #fff; padding: 10px; border-radius: 10px; width: max-content; margin-top: 12px; }
+.qr img { display: block; width: 240px; height: 240px; }
+.qr p { color: #222; font-size: 12px; margin: 8px 0 0; text-align: center; }
+.gateway { padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
+.log { max-height: 220px; overflow-y: auto; font-family: ui-monospace, monospace; font-size: 11px; color: var(--muted); line-height: 1.6; }
+.file-button { display: inline-flex; align-items: center; background: var(--accent); color: #04121d; border-radius: 8px; padding: 9px 14px; font-weight: 650; cursor: pointer; }
+.file-button input { display: none; }
+.video-preview { display: block; width: 100%; max-width: 420px; margin-top: 10px; border-radius: 10px; border: 1px solid var(--line); background: #000; }
+.video-preview + p, .video-preview p { font-size: 12px; color: var(--muted); }
+.snap { display: block; max-width: 100%; max-height: 260px; border-radius: 8px; margin: 8px 0; }
+.msg-body audio { width: 100%; max-width: 360px; }
+[dir="rtl"] .msg-head { flex-direction: row-reverse; }
+[dir="rtl"] .composer, [dir="rtl"] .row { flex-direction: row-reverse; }
+code { color: var(--accent); word-break: break-all; }
