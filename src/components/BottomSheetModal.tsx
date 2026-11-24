@@ -12,7 +12,6 @@ HOW: Governed source reusing LeeWay contracts; no competing authority; evidence-
 */
 import { useEffect, type ReactNode } from 'react';
 import { X } from 'lucide-react';
-import { LeeWayLogo } from './LeeWayLogo';
 
 interface BottomSheetModalProps {
   open: boolean;
@@ -60,7 +59,6 @@ export function BottomSheetModal({
 
         <div className="px-5 py-3.5 border-b border-white/[0.07] flex items-center justify-between gap-3 shrink-0">
           <div className="flex items-center gap-3 min-w-0">
-            <LeeWayLogo size="sm" showWordmark={false} />
             <div className="min-w-0">
               <h2 className="font-display text-base sm:text-lg font-bold tracking-tight text-slate-100 truncate">
                 {title}

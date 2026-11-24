@@ -15,6 +15,7 @@ import { CircleMobilePanel } from './components/CircleMobilePanel';
 import { DeviceStatusSheet } from './components/DeviceStatusSheet';
 import { LeeWayLogo } from './components/LeeWayLogo';
 import { LeeWayLoadingScreen } from './components/LeeWayLoadingScreen';
+import { FamilySharePanel } from './components/FamilySharePanel';
 import { SecureSignIn, type SignInDeviceSummary } from './components/SecureSignIn';
 import { verifyLocalDevicePossession } from './utils/deviceSignIn';
 import { hasAccessPassphrase, establishAccessPassphrase, requireAccessPassphrase } from './utils/signInAccess';
@@ -968,6 +969,15 @@ export default function App() {
       />
 
       <main className="flex-1 w-full max-w-6xl mx-auto px-3.5 sm:px-6 pt-3.5 sm:pt-5 pb-24 md:pb-10 flex flex-col gap-3.5 sm:gap-5">
+        {deviceKeys && (
+          <FamilySharePanel
+            t={t}
+            session={session}
+            deviceKeys={deviceKeys}
+            onUpdateSession={handleUpdateSession}
+            onNotice={setCommState}
+          />
+        )}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-5 items-stretch">
           {/* Left / Walkie-Talkie Handset Column */}
           <div

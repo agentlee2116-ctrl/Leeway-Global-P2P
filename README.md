@@ -14,6 +14,15 @@ HOW: Governed source reusing LeeWay contracts; no competing authority; evidence-
 
 **Offline-first walkie-talkie dispatch for the LeeWay ecosystem.** One shared room, identity, circle and crypto model across **Android, iPhone/iOS, Windows, macOS, Linux and Web/PWA**.
 
+## Clean entry and invite flow
+
+- The Creator logo appears once at the top left of the app, plus the mandatory boot splash. Sign-in, enrollment and dialogs use plain icons/text instead of repeated logos.
+- After sign-in the organizer sees **Invite your family** immediately: configure link expiry and membership length, create a signed invite link, then use **Share invite** (native share sheet on phones/tablets) or copy/share via WhatsApp, Telegram, Email, SMS and X. A backup invite code can also be copied. No JSON download is required to invite someone.
+- The invite link points to the hosted PWA, where relatives install the app on iPhone/iOS, Android, Windows, macOS or Linux and join the circle.
+
+## OS and device support
+One responsive web/PWA core runs in Safari, Chrome, Edge and Firefox on phones, tablets and desktops across Apple, Android, Windows, Linux and macOS. Safe-area insets and 44px touch targets are applied. Native wrappers (Capacitor Android) are optional and must not block the universal web build. Physical testing on each OS is NOT VERIFIED.
+
 ## UI
 
 The canonical UI is a device- and OS-agnostic React presentation layer (`src/App.tsx`, `src/components/`, `src/index.css`, `src/utils/`) with the Creator's logo, onboarding gates, walkie-talkie deck, dispatch cards, video snaps, language selection and security dashboard. It renders identically from GitHub Pages, a local browser, or a native wrapper; no drive path or local machine is part of its identity.

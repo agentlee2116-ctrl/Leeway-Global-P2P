@@ -71,3 +71,16 @@ HOW: Governed source reusing LeeWay contracts; no competing authority; evidence-
     animation: none;
   }
 }
+
+/* OS- and device-agnostic shell: safe areas for iOS/Android notches, touch
+   targets for phones/tablets, and scroll behaviour that matches native apps. */
+html, body, #root { min-height: 100%; }
+body { overscroll-behavior-y: none; }
+button, select, a, input { -webkit-tap-highlight-color: transparent; }
+@supports (padding: env(safe-area-inset-bottom)) {
+  .safe-bottom { padding-bottom: calc(1rem + env(safe-area-inset-bottom)); }
+  .safe-top { padding-top: calc(0.5rem + env(safe-area-inset-top)); }
+}
+@media (pointer: coarse) {
+  button, select { min-height: 44px; }
+}

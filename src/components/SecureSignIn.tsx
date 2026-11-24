@@ -126,7 +126,7 @@ export function SecureSignIn({
         </div>
         <div className="mt-8 grid min-h-[min(740px,80dvh)] grid-cols-1 items-center gap-7 lg:grid-cols-12 lg:gap-12">
           <section className="lg:col-span-5">
-            <LeeWayLogo size="lg" showWordmark={false} />
+            <LockKeyhole className="h-9 w-9 text-amber-400" aria-hidden="true" />
             <p className="mt-4 text-xs tracking-widest text-amber-300">PRIVATE FAMILY ENROLLMENT GATE</p>
             <h1 className="mt-2 font-display text-3xl font-bold tracking-tight sm:text-4xl">{t.appName}</h1>
             <p className="mt-3 max-w-md text-base leading-relaxed text-slate-300">{c.intro}</p>
@@ -137,7 +137,7 @@ export function SecureSignIn({
           <section className="lg:col-span-7 rounded-[30px] border border-white/10 bg-[#0D1625]/90 px-5 py-7 shadow-[0_30px_90px_rgba(0,0,0,.42)] backdrop-blur-2xl sm:px-10 sm:py-11"
             aria-labelledby="leeway-signin-title">
             <div className="mx-auto flex justify-center">
-              <LeeWayLogo size="lg" showWordmark={false} />
+              <LockKeyhole className="h-9 w-9 text-amber-400" aria-hidden="true" />
             </div>
             <h2 id="leeway-signin-title" className="mt-4 text-center font-display text-3xl font-bold">{c.title}</h2>
             <p className="mt-2 text-center text-sm text-slate-400">{c.sub}</p>

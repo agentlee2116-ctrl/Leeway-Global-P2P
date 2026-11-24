@@ -50,7 +50,6 @@ import {
   type SignedMembershipGrant,
 } from '../utils/enrollmentCrypto';
 import type { Translations } from '../utils/i18n';
-import { LeeWayLogo } from './LeeWayLogo';
 
 interface OwnerOnboardingFlowProps {
   t: Translations;
@@ -307,7 +306,7 @@ export function OwnerOnboardingFlow({
             </button>
 
             <div className="flex items-center gap-3">
-              <LeeWayLogo size="sm" showWordmark={false} />
+              <KeyRound className="w-6 h-6 text-amber-400 shrink-0" aria-hidden="true" />
               <div className="text-right">
                 <div className="font-mono-tabular text-xs font-semibold text-amber-400">
                   {t.stepOf} {step} / 5

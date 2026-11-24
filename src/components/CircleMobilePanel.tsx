@@ -14,7 +14,6 @@ import { Lock, Shield, ShieldCheck, Video } from 'lucide-react';
 import type { EnrollmentSession } from '../utils/circleStore';
 import type { Translations } from '../utils/i18n';
 import { Avatar } from './Avatar';
-import { LeeWayLogo } from './LeeWayLogo';
 
 interface CircleMobilePanelProps {
   t: Translations;
@@ -111,12 +110,9 @@ export function CircleMobilePanel({
       </div>
 
       <div className="pt-2 border-t border-white/[0.06] flex items-center justify-between gap-2">
-        <LeeWayLogo
-          size="xs"
-          showWordmark
-          wordmarkText={t.appName}
-          subtitle="Zero API keys · On-device Web Crypto"
-        />
+        <span className="text-[11px] text-slate-400">
+          {t.appName} · Zero API keys · On-device Web Crypto
+        </span>
       </div>
     </section>
   );

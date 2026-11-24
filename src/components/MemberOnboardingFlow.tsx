@@ -47,7 +47,6 @@ import {
 } from '../utils/enrollmentCrypto';
 import type { LangCode, Translations } from '../utils/i18n';
 import { LanguageDropdown } from './LanguageDropdown';
-import { LeeWayLogo } from './LeeWayLogo';
 
 interface MemberOnboardingFlowProps {
   t: Translations;
@@ -296,7 +295,7 @@ export function MemberOnboardingFlow({
             </button>
 
             <div className="flex items-center gap-3">
-              <LeeWayLogo size="sm" showWordmark={false} />
+              <ShieldCheck className="w-6 h-6 text-amber-400 shrink-0" aria-hidden="true" />
               <div className="text-right">
                 <div className="font-mono-tabular text-xs font-semibold text-sky-300">
                   {t.stepOf} {step} / 3

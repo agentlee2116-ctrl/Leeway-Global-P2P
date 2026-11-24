@@ -26,7 +26,6 @@ import {
 } from '../utils/enrollmentCrypto';
 import type { LangCode, Translations } from '../utils/i18n';
 import { LanguageDropdown } from './LanguageDropdown';
-import { LeeWayLogo } from './LeeWayLogo';
 
 interface OnboardingWelcomeProps {
   t: Translations;
@@ -103,7 +102,7 @@ export function OnboardingWelcome({
           <section className="lg:col-span-5 flex flex-col justify-between gap-6 py-2">
             <div className="flex flex-col gap-5">
               <div className="flex items-center gap-4">
-                <LeeWayLogo size="crest" showWordmark={false} />
+                <ShieldCheck className="w-9 h-9 text-amber-400 shrink-0" aria-hidden="true" />
                 <div className="flex flex-col gap-1.5 min-w-0">
                   <div className="flex flex-col gap-0.5">
                     <span className="font-mono-tabular text-[11px] sm:text-xs font-semibold tracking-wide text-amber-300">
