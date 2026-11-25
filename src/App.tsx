@@ -145,7 +145,11 @@ export default function App() {
   const [commState, setCommState] = useState('offline');
   const [inviteCredentials, setInviteCredentials] = useState<InviteCredentials | null>(() => {
     if (typeof window === 'undefined') return null;
-    return parseRecipientInviteUrl(window.location.href);
+    const inUrl = parseRecipientInviteUrl(window.location.href);
+    if (inUrl) return inUrl;
+    // The join page saves the invite before installation; recover it on first PWA launch.
+    const saved = localStorage.getItem('lwp.pendingJoinUrl');
+    return saved ? parseRecipientInviteUrl(saved) : null;
   });
   const [loginUsername, setLoginUsername] = useState('');
   const [rotationRequired, setRotationRequired] = useState(false);
@@ -366,7 +370,8 @@ export default function App() {
     const runGate = async () => {
       const inviteFromUrl =
         typeof window !== 'undefined'
-          ? new URLSearchParams(window.location.search).get('invite')
+          ? (new URLSearchParams(window.location.search).get('invite')
+            ?? (inviteCredentials?.inviteToken || null))
           : null;
 
       // Qualification can finish quickly, but the Creator's full logo stays

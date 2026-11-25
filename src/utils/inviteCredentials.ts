@@ -59,7 +59,7 @@ export function makeUsername(name: string): string {
 /** Builds the shareable link. Credentials live in the fragment so they are not transmitted to the hosting server. */
 export function encodeRecipientInviteUrl(
   credentials: InviteCredentials,
-  baseUrl = 'https://agentlee2116-ctrl.github.io/Leeway-Global-P2P/app/',
+  baseUrl = 'https://agentlee2116-ctrl.github.io/Leeway-Global-P2P/join/',
 ): string {
   const token = toBase64Url(JSON.stringify(credentials));
   const query = `?invite=${encodeURIComponent(credentials.inviteToken)}`;

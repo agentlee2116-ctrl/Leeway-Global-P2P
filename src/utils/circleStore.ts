@@ -121,7 +121,7 @@ export function encodeBundleToken(prefix: TokenPrefix, payload: unknown): string
 
 export function encodeInviteShareUrl(
   invite: SignedInvitation,
-  baseUrl = 'https://agentlee2116-ctrl.github.io/Leeway-Global-P2P/app/',
+  baseUrl = 'https://agentlee2116-ctrl.github.io/Leeway-Global-P2P/join/',
 ): string {
   const token = encodeBundleToken('LWINV1', invite);
   return `${baseUrl}?invite=${encodeURIComponent(token)}`;
