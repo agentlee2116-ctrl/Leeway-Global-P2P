@@ -107,6 +107,7 @@ export async function establishAccessCredential(
   deviceId: string,
   username: string,
   password: string,
+  mustRotate = true,
 ): Promise<void> {
   if (!deviceId || !username || password.length < 8) {
     throw new Error('A username and a password of at least 8 characters are required.');
@@ -116,7 +117,7 @@ export async function establishAccessCredential(
   const digest = await passphraseDigest(password, salt, ITERATIONS);
   await saveRecord({
     deviceId, username, salt: toHex(salt), digest, iterations: ITERATIONS,
-    failed: 0, lockUntil: 0, mustRotate: true,
+    failed: 0, lockUntil: 0, mustRotate,
   });
 }
 

@@ -285,26 +285,27 @@ export default function App() {
         if (gate.session.accessPassphraseConfigured) throw new Error('Device credential missing; recovery required.');
         if (!credentialSetupRequired || !confirmation) throw new Error('Sign-in credential setup is required for this enrolled device.');
         if (passphrase !== confirmation) throw new Error('The two password entries do not match.');
-        if (username || inviteCredentials) {
-          await establishAccessCredential(deviceId, username || inviteCredentials!.username, passphrase);
-        } else {
-          await establishAccessPassphrase(deviceId, passphrase);
-        }
+        const fromInvite = !!inviteCredentials;
+        const login = username || inviteCredentials?.username || gate.session.userName;
+        // An organizer choosing their own password owns it immediately. A member
+        // using a temporary invite password must rotate it on first entry.
+        await establishAccessCredential(deviceId, login, passphrase, fromInvite);
         await saveEnrollmentSession({ ...gate.session, accessPassphraseConfigured: true });
         setCredentialSetupRequired(false);
-        setSignInError('Device protected. Sign in with your username and password.');
-        return; // Setting a credential never auto-unlocks.
-      }
-      if (configuredUsername) {
-        const result = await requireAccessCredential(deviceId, username, passphrase);
-        setRotationRequired(result.mustRotate);
+        setRotationRequired(fromInvite);
+        setLoginUsername(login);
       } else {
-        await requireAccessPassphrase(deviceId, passphrase);
+        if (configuredUsername) {
+          const result = await requireAccessCredential(deviceId, username, passphrase);
+          setRotationRequired(result.mustRotate);
+        } else {
+          await requireAccessPassphrase(deviceId, passphrase);
+        }
+        setLoginUsername(username || configuredUsername || '');
       }
       await hydrateEncryptedFeed(gate.session);
       setSession(gate.session);
       setDeviceKeys(gate.keys);
-      setLoginUsername(username || configuredUsername || '');
       setLockReason(null);
       setBootPhase('enrolled');
     } catch (error) {

@@ -14,7 +14,8 @@ import { detectOs, type OsFamily } from '../platform/index.ts';
 
 export interface InviteCredentials {
   v: 1;
-  inviteToken: string;
+  /** Carried in the query string; the QR fragment omits it to stay scannable. */
+  inviteToken?: string;
   recipientName: string;
   recipientAddress: string;
   username: string;
@@ -61,8 +62,11 @@ export function encodeRecipientInviteUrl(
   credentials: InviteCredentials,
   baseUrl = 'https://agentlee2116-ctrl.github.io/Leeway-Global-P2P/join/',
 ): string {
-  const token = toBase64Url(JSON.stringify(credentials));
-  const query = `?invite=${encodeURIComponent(credentials.inviteToken)}`;
+  // The signed invite token travels once in the query. The fragment carries
+  // only the small credential envelope, keeping the QR well within capacity.
+  const { inviteToken: _token, ...fragmentPayload } = credentials;
+  const token = toBase64Url(JSON.stringify(fragmentPayload));
+  const query = `?invite=${encodeURIComponent(_token ?? '')}`;
   return `${baseUrl}${query}#join=${token}`;
 }
 
@@ -75,6 +79,8 @@ export function parseRecipientInviteUrl(input: string): InviteCredentials | null
     const candidate = match[1];
     if (candidate.startsWith('LWINV1:')) return null; // Legacy token: no credentials attached.
     const parsed = JSON.parse(fromBase64Url(candidate)) as InviteCredentials;
+    const queryToken = raw.match(/[?&]invite=([A-Za-z0-9_:.%\-]+)/)?.[1];
+    if (queryToken) parsed.inviteToken = decodeURIComponent(queryToken);
     if (parsed?.v !== 1 || !parsed.inviteToken || !parsed.username || !parsed.temporaryPassword) return null;
     return parsed;
   } catch {
