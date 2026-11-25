@@ -75,6 +75,29 @@ HOW: Governed source reusing LeeWay contracts; no competing authority; evidence-
 /* OS- and device-agnostic shell: safe areas for iOS/Android notches, touch
    targets for phones/tablets, and scroll behaviour that matches native apps. */
 html, body, #root { min-height: 100%; }
+.leeway-open-fab {
+  position: fixed;
+  right: max(14px, env(safe-area-inset-right));
+  bottom: max(84px, calc(72px + env(safe-area-inset-bottom)));
+  z-index: 120;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  width: 72px;
+  height: 72px;
+  border-radius: 999px;
+  border: 2px solid rgba(245, 197, 99, 0.85);
+  background: #05070c;
+  color: #f5c563;
+  font-size: 10px;
+  font-weight: 800;
+  box-shadow: 0 8px 28px rgba(0,0,0,.6), 0 0 18px rgba(245,197,99,.18);
+  cursor: pointer;
+}
+.leeway-open-fab img { width: 42px; height: 42px; object-fit: contain; border-radius: 10px; }
+@media (min-width: 768px) { .leeway-open-fab { bottom: 20px; right: 20px; } }
 body { overscroll-behavior-y: none; }
 button, select, a, input { -webkit-tap-highlight-color: transparent; }
 @supports (padding: env(safe-area-inset-bottom)) {

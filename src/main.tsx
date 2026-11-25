@@ -11,11 +11,18 @@ WHY: Offline-first LeeWay walkie-talkie dispatch for families across regions
 HOW: Governed source reusing LeeWay contracts; no competing authority; evidence-backed verification
 */
 import { createRoot } from 'react-dom/client';
+import { createPortal } from 'react-dom';
 import App from './App.tsx';
 import './index.css';
 import { registerPwaUpdates } from './pwa-updates.ts';
+import { FloatingOpenButton } from './components/FloatingOpenButton.tsx';
 
-createRoot(document.getElementById('root')!).render(<App />);
+createRoot(document.getElementById('root')!).render(
+  <>
+    <App />
+    {createPortal(<FloatingOpenButton />, document.body)}
+  </>,
+);
 
 /* PWA update detection stays outside the UI layer so the UI remains portable. */
 void registerPwaUpdates(() => {});
