@@ -14,6 +14,15 @@ HOW: Governed source reusing LeeWay contracts; no competing authority; evidence-
 
 **Offline-first walkie-talkie dispatch for the LeeWay ecosystem.** One shared room, identity, circle and crypto model across **Android, iPhone/iOS, Windows, macOS, Linux and Web/PWA**.
 
+## Display name
+The UI displays **LeeWay Global Family Connect**. Package, repository, API and internal identities remain `leeway-global-p2p` / `LeeWay Global P2P`.
+
+## Credential-bound invites
+- The organizer creates a room, enters the member's name and phone/email, chooses their device (iPhone/iPad, Android, Windows, Mac or Linux), link expiry and membership length, and optionally sets a login name and temporary password.
+- One signed invite link and one QR code carry the same invite token, recipient identity, login name and temporary password in the URL fragment (never sent to the host). Share by native share sheet, copy, text/email, WhatsApp, Telegram, SMS or other apps.
+- On first login the member must change the temporary password before the room opens. Every later launch requires that username/password plus the device key.
+- The owner can revoke any invite link or any member from the same panel. Offline members can still leave encrypted messages that queue on their device and sync when a link opens.
+
 ## Clean entry and invite flow
 
 - The Creator logo appears once at the top left of the app, plus the mandatory boot splash. Sign-in, enrollment and dialogs use plain icons/text instead of repeated logos.
