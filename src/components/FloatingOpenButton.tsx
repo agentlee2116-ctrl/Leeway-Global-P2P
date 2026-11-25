@@ -33,7 +33,6 @@ export function FloatingOpenButton() {
       className="leeway-open-fab"
     >
       <img src={OPEN_ICON_SRC} alt="LeeWay" draggable={false} />
-      <span>Open LeeWay</span>
     </button>
   );
 }

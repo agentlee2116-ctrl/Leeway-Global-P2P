@@ -1,1 +1,1 @@
-leeway-global-p2p-v1.0.0-release.apk  f451712d6e9730ec561dbeb965c5ca5af251a5e45a51b8f6a23112c42dbd565f
+leeway-global-p2p-v1.0.0-release.apk  d771908b259721030dee8ea9fb18726a159c6141ca427bdb721ed83c4c32bb58
