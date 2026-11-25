@@ -3,7 +3,7 @@ LEEWAY_HEADER - DO NOT REMOVE
 REGION: PRODUCT
 TAG: PRODUCT.LEEWAY_GLOBAL_P2P.I18N
 DISCOVERY_PIPELINE: Voice -> Intent -> Location -> Vertical -> Ranking -> Render
-WHO: LeeWay Creator / LeeWay Global P2P product engineering
+WHO: LeeWay Creator / LeeWay Global Family Connect product engineering
 WHAT: Multilingual UI registry and translation lookup for the walkie-talkie dispatch app
 WHEN: 2026-11-24
 WHERE: agentlee2116-ctrl/Leeway-Global-P2P/src/i18n.ts
@@ -51,7 +51,7 @@ type Table = Partial<Record<TranslationKey, string>>;
 
 export const TRANSLATIONS: Record<string, Table> = {
   en: {
-    appName: 'LeeWay Global P2P', tagline: 'Offline-first walkie-talkie dispatch for the LeeWay ecosystem',
+    appName: 'LeeWay Global Family Connect', tagline: 'Offline-first walkie-talkie dispatch for the LeeWay ecosystem',
     dispatch: 'Dispatch', media: 'Media', room: 'Private Room', network: 'Network', setup: 'Setup',
     identity: 'Identity', roomLabel: 'Room', relay: 'Relay', route: 'Route', satellite: 'Satellite',
     queued: 'Queued', notCreated: 'not created', noMessages: 'No dispatches yet. Create an identity, add family members, and send the first message.',
@@ -71,7 +71,7 @@ export const TRANSLATIONS: Record<string, Table> = {
     partTranslation: 'Partial translation — some text falls back to English',
   },
   es: {
-    appName: 'LeeWay Global P2P', tagline: 'Despacho walkie-talkie sin conexión para el ecosistema LeeWay',
+    appName: 'LeeWay Global Family Connect', tagline: 'Despacho walkie-talkie sin conexión para el ecosistema LeeWay',
     dispatch: 'Despachos', media: 'Multimedia', room: 'Sala privada', network: 'Red', setup: 'Configuración',
     identity: 'Identidad', roomLabel: 'Sala', relay: 'Relé', route: 'Ruta', satellite: 'Satélite',
     queued: 'En cola', notCreated: 'no creada', noMessages: 'Aún no hay despachos. Crea una identidad, añade familiares y envía el primer mensaje.',
@@ -91,7 +91,7 @@ export const TRANSLATIONS: Record<string, Table> = {
     partTranslation: 'Traducción parcial: parte del texto vuelve al inglés',
   },
   fr: {
-    appName: 'LeeWay Global P2P', tagline: 'Messagerie walkie-talkie hors ligne pour l’écosystème LeeWay',
+    appName: 'LeeWay Global Family Connect', tagline: 'Messagerie walkie-talkie hors ligne pour l’écosystème LeeWay',
     dispatch: 'Dépêches', media: 'Médias', room: 'Salon privé', network: 'Réseau', setup: 'Configuration',
     identity: 'Identité', roomLabel: 'Salon', relay: 'Relais', route: 'Route', satellite: 'Satellite',
     queued: 'En attente', notCreated: 'non créée', noMessages: 'Aucune dépêche. Créez une identité, ajoutez des membres et envoyez le premier message.',
@@ -111,7 +111,7 @@ export const TRANSLATIONS: Record<string, Table> = {
     partTranslation: 'Traduction partielle — certaines parties reviennent à l’anglais',
   },
   de: {
-    appName: 'LeeWay Global P2P', tagline: 'Offline-Walkie-Talky-Dispatch für das LeeWay-Ökosystem',
+    appName: 'LeeWay Global Family Connect', tagline: 'Offline-Walkie-Talky-Dispatch für das LeeWay-Ökosystem',
     dispatch: 'Meldungen', media: 'Medien', room: 'Privater Raum', network: 'Netzwerk', setup: 'Einrichtung',
     identity: 'Identität', roomLabel: 'Raum', relay: 'Relais', route: 'Route', satellite: 'Satellit',
     queued: 'In Warteschlange', notCreated: 'nicht erstellt', noMessages: 'Noch keine Meldungen. Identität erstellen, Mitglieder hinzufügen und erste Nachricht senden.',
@@ -131,7 +131,7 @@ export const TRANSLATIONS: Record<string, Table> = {
     partTranslation: 'Teilweise Übersetzung — einige Texte fallen auf Englisch zurück',
   },
   pt: {
-    appName: 'LeeWay Global P2P', tagline: 'Despacho walkie-talkie offline para o ecossistema LeeWay',
+    appName: 'LeeWay Global Family Connect', tagline: 'Despacho walkie-talkie offline para o ecossistema LeeWay',
     dispatch: 'Despachos', media: 'Mídia', room: 'Sala privada', network: 'Rede', setup: 'Configuração',
     identity: 'Identidade', roomLabel: 'Sala', relay: 'Retransmissor', route: 'Rota', satellite: 'Satélite',
     queued: 'Na fila', notCreated: 'não criada', noMessages: 'Ainda não há despachos. Crie uma identidade, adicione membros e envie a primeira mensagem.',
@@ -151,7 +151,7 @@ export const TRANSLATIONS: Record<string, Table> = {
     partTranslation: 'Tradução parcial — algum texto volta ao inglês',
   },
   ru: {
-    appName: 'LeeWay Global P2P', tagline: 'Офлайн-рация для экосистемы LeeWay',
+    appName: 'LeeWay Global Family Connect', tagline: 'Офлайн-рация для экосистемы LeeWay',
     dispatch: 'Сообщения', media: 'Медиа', room: 'Приватная комната', network: 'Сеть', setup: 'Настройка',
     identity: 'Идентичность', roomLabel: 'Комната', relay: 'Ретранслятор', route: 'Маршрут', satellite: 'Спутник',
     queued: 'В очереди', notCreated: 'не создана', noMessages: 'Сообщений пока нет. Создайте идентичность, добавьте участников и отправьте первое сообщение.',
@@ -171,7 +171,7 @@ export const TRANSLATIONS: Record<string, Table> = {
     partTranslation: 'Частичный перевод — часть текста на английском',
   },
   ar: {
-    appName: 'LeeWay Global P2P', tagline: 'إرسال لوكي ووكيزي بدون اتصال لنظام LeeWay البيئي',
+    appName: 'LeeWay Global Family Connect', tagline: 'إرسال لوكي ووكيزي بدون اتصال لنظام LeeWay البيئي',
     dispatch: 'الرسائل', media: 'الوسائط', room: 'الغرفة الخاصة', network: 'الشبكة', setup: 'الإعداد',
     identity: 'الهوية', roomLabel: 'الغرفة', relay: 'المرحّل', route: 'المسار', satellite: 'القمر الصناعي',
     queued: 'في الانتظار', notCreated: 'لم تُنشأ', noMessages: 'لا رسائل بعد. أنشئ هوية وأضف أفراد العائلة ثم أرسل أول رسالة.',
@@ -191,7 +191,7 @@ export const TRANSLATIONS: Record<string, Table> = {
     partTranslation: 'ترجمة جزئية — بعض النصوص تعود إلى الإنجليزية',
   },
   zh: {
-    appName: 'LeeWay Global P2P', tagline: '面向 LeeWay 生态的离线对讲调度应用',
+    appName: 'LeeWay Global Family Connect', tagline: '面向 LeeWay 生态的离线对讲调度应用',
     dispatch: '调度消息', media: '媒体', room: '私密房间', network: '网络', setup: '设置',
     identity: '身份', roomLabel: '房间', relay: '中继', route: '路由', satellite: '卫星',
     queued: '排队中', notCreated: '未创建', noMessages: '暂无消息。创建身份、添加家庭成员，然后发送第一条消息。',
@@ -211,7 +211,7 @@ export const TRANSLATIONS: Record<string, Table> = {
     partTranslation: '部分翻译 — 某些文字回退为英文',
   },
   ja: {
-    appName: 'LeeWay Global P2P', tagline: 'LeeWay エコシステム向けオフライン・トランシーバー',
+    appName: 'LeeWay Global Family Connect', tagline: 'LeeWay エコシステム向けオフライン・トランシーバー',
     dispatch: 'dispatch 通信', media: 'メディア', room: 'プライベートルーム', network: 'ネットワーク', setup: '設定',
     identity: '身分', roomLabel: 'ルーム', relay: 'リレー', route: '経路', satellite: '衛星',
     queued: '待機中', notCreated: '未作成', noMessages: 'まだメッセージがありません。身分を作成し、家族を追加して最初のメッセージを送ってください。',
@@ -231,7 +231,7 @@ export const TRANSLATIONS: Record<string, Table> = {
     partTranslation: '部分的な翻訳 — 一部のテキストは英語にフォールバックします',
   },
   ko: {
-    appName: 'LeeWay Global P2P', tagline: 'LeeWay 생태계를 위한 오프라인 무전 디스패치',
+    appName: 'LeeWay Global Family Connect', tagline: 'LeeWay 생태계를 위한 오프라인 무전 디스패치',
     dispatch: '디스패치', media: '미디어', room: '비공개 룸', network: '네트워크', setup: '설정',
     identity: '신원', roomLabel: '룸', relay: '릴레이', route: '경로', satellite: '위성',
     queued: '대기 중', notCreated: '생성되지 않음', noMessages: '아직 메시지가 없습니다. 신원을 만들고 가족을 추가한 뒤 첫 메시지를 보내세요.',
@@ -251,7 +251,7 @@ export const TRANSLATIONS: Record<string, Table> = {
     partTranslation: '부분 번역 — 일부 텍스트는 영어로 표시됩니다',
   },
   hi: {
-    appName: 'LeeWay Global P2P', tagline: 'LeeWay इकोसिस्टम के लिए ऑफ़लाइन वॉकी-टॉकी डिस्पैच',
+    appName: 'LeeWay Global Family Connect', tagline: 'LeeWay इकोसिस्टम के लिए ऑफ़लाइन वॉकी-टॉकी डिस्पैच',
     dispatch: 'संदेश', media: 'मीडिया', room: 'निजी कमरा', network: 'नेटवर्क', setup: 'सेटअप',
     identity: 'पहचान', roomLabel: 'कमरा', relay: 'रिले', route: 'मार्ग', satellite: 'उपग्रह',
     queued: 'कतार में', notCreated: 'नहीं बनाया गया', noMessages: 'अभी कोई संदेश नहीं। पहचान बनाएँ, परिवार के सदस्य जोड़ें और पहला संदेश भेजें।',
@@ -271,7 +271,7 @@ export const TRANSLATIONS: Record<string, Table> = {
     partTranslation: 'आंशिक अनुवाद — कुछ पाठ अंग्रेज़ी में दिखेंगे',
   },
   tr: {
-    appName: 'LeeWay Global P2P', tagline: 'LeeWay ekosistemi için çevrimdışı telsiz sevkıyatı',
+    appName: 'LeeWay Global Family Connect', tagline: 'LeeWay ekosistemi için çevrimdışı telsiz sevkıyatı',
     dispatch: 'Sevkıyat', media: 'Medya', room: 'Özel oda', network: 'Ağ', setup: 'Kurulum',
     identity: 'Kimlik', roomLabel: 'Oda', relay: 'Röle', route: 'Rota', satellite: 'Uydu',
     queued: 'Sırada', notCreated: 'oluşturulmadı', noMessages: 'Henüz mesaj yok. Kimlik oluşturun, aile üyeleri ekleyin ve ilk mesajı gönderin.',
@@ -291,7 +291,7 @@ export const TRANSLATIONS: Record<string, Table> = {
     partTranslation: 'Kısmi çeviri — bazı metinler İngilizceye döner',
   },
   vi: {
-    appName: 'LeeWay Global P2P', tagline: 'Bộ đàm ngoại tuyến cho hệ sinh thái LeeWay',
+    appName: 'LeeWay Global Family Connect', tagline: 'Bộ đàm ngoại tuyến cho hệ sinh thái LeeWay',
     dispatch: 'Thông điệp', media: 'Phương tiện', room: 'Phòng riêng', network: 'Mạng', setup: 'Thiết lập',
     identity: 'Danh tính', roomLabel: 'Phòng', relay: 'Chuyển tiếp', route: 'Tuyến', satellite: 'Vệ tinh',
     queued: 'Đang chờ', notCreated: 'chưa tạo', noMessages: 'Chưa có thông điệp. Tạo danh tính, thêm thành viên và gửi tin nhắn đầu tiên.',

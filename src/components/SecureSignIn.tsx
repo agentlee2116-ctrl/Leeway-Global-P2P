@@ -36,7 +36,8 @@ interface SecureSignInProps {
   error?: string | null;
   busy: boolean;
   credentialSetupRequired: boolean;
-  onSignIn: (passphrase: string, confirmation?: string) => Promise<void>;
+  username?: string;
+  onSignIn: (username: string, passphrase: string, confirmation?: string) => Promise<void>;
   onCreatePrivateLine: () => void;
   onJoinFamily: () => void;
   onRecover: () => void;
@@ -53,7 +54,7 @@ const COPY = {
     verify: 'Sign In — Verify Device', checking: 'Verifying device…',
     first: 'This device has not completed secure enrollment.',
     newLine: 'Create a Private Line', join: 'Join My Family', recover: 'Recover Device',
-    note: 'Uses signed device membership and local cryptographic key verification. No email or password account login is configured.',
+    note: 'Enter the login name and password from your family invite. Device membership and bound keys are also verified locally.',
     about: 'Protected communications start with an approved device.',
   },
   es: {
@@ -100,16 +101,17 @@ const COPY = {
 
 export function SecureSignIn({
   t, lang, onChangeLang, device, lockReason, error, busy, credentialSetupRequired,
-  onSignIn, onCreatePrivateLine, onJoinFamily, onRecover,
+  username: initialUsername, onSignIn, onCreatePrivateLine, onJoinFamily, onRecover,
 }: SecureSignInProps) {
   const c = COPY[lang as keyof typeof COPY] ?? COPY.en;
   const accessLabels = { ...COPY.en, ...c };
+  const [loginName, setLoginName] = useState(initialUsername ?? '');
   const [passphrase, setPassphrase] = useState('');
   const [confirm, setConfirm] = useState('');
   const handleAccess = (event: FormEvent) => {
     event.preventDefault();
     if (busy || !device) return;
-    void onSignIn(passphrase, credentialSetupRequired ? confirm : undefined).finally(() => {
+    void onSignIn(loginName, passphrase, credentialSetupRequired ? confirm : undefined).finally(() => {
       setPassphrase('');
       setConfirm('');
     });
@@ -162,6 +164,14 @@ export function SecureSignIn({
                 {credentialSetupRequired && (
                   <p className="text-sm text-amber-200">{accessLabels.setupTitle}</p>
                 )}
+                <label htmlFor="leeway-secure-username" className="block text-sm font-semibold text-slate-200">
+                  Login name
+                </label>
+                <input id="leeway-secure-username" type="text" required
+                  value={loginName} onChange={(event) => setLoginName(event.target.value)}
+                  autoComplete="username"
+                  className="w-full min-h-[50px] rounded-xl border border-white/15 bg-black/30 p-3 text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-400"
+                />
                 <label htmlFor="leeway-secure-access-secret" className="block text-sm font-semibold text-slate-200">
                   {accessLabels.passphrase}
                 </label>

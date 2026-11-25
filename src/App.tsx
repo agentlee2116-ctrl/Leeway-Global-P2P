@@ -18,7 +18,14 @@ import { LeeWayLoadingScreen } from './components/LeeWayLoadingScreen';
 import { FamilySharePanel } from './components/FamilySharePanel';
 import { SecureSignIn, type SignInDeviceSummary } from './components/SecureSignIn';
 import { verifyLocalDevicePossession } from './utils/deviceSignIn';
-import { hasAccessPassphrase, establishAccessPassphrase, requireAccessPassphrase } from './utils/signInAccess';
+import {
+  hasAccessPassphrase, establishAccessPassphrase, requireAccessPassphrase,
+  establishAccessCredential, requireAccessCredential, getAccessUsername, needsPasswordRotation,
+  rotateAccessCredential,
+} from './utils/signInAccess';
+import {
+  parseRecipientInviteUrl, type InviteCredentials,
+} from './utils/inviteCredentials';
 import { holdSplashSince } from './utils/entryPolicy';
 import { MemberOnboardingFlow } from './components/MemberOnboardingFlow';
 import { MobileBottomNav, type MobileTab } from './components/MobileBottomNav';
@@ -136,6 +143,15 @@ export default function App() {
   const captureRef = useRef<CaptureHandle | null>(null);
   const platform = useMemo(() => detectPlatform(), []);
   const [commState, setCommState] = useState('offline');
+  const [inviteCredentials, setInviteCredentials] = useState<InviteCredentials | null>(() => {
+    if (typeof window === 'undefined') return null;
+    return parseRecipientInviteUrl(window.location.href);
+  });
+  const [loginUsername, setLoginUsername] = useState('');
+  const [rotationRequired, setRotationRequired] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [rotationError, setRotationError] = useState<string | null>(null);
   const [mediaUrls, setMediaUrls] = useState<Record<string, string>>({});
 
   const t = I18N[lang];
@@ -246,7 +262,7 @@ export default function App() {
 
   // Each entry proves knowledge of a secret AND possession of the bound device key.
   // This is offline device unlocking, not an invented email/password cloud account.
-  const handleSignIn = async (passphrase: string, confirmation?: string) => {
+  const handleSignIn = async (username: string, passphrase: string, confirmation?: string) => {
     if (signInBusy) return;
     setSignInBusy(true);
     setSignInError(null);
@@ -259,21 +275,32 @@ export default function App() {
       }
       await verifyLocalDevicePossession(gate.keys, gate.session.grant);
       const deviceId = gate.session.deviceId;
+      const configuredUsername = await getAccessUsername(deviceId);
       const isConfigured = await hasAccessPassphrase(deviceId);
       if (!isConfigured) {
         if (gate.session.accessPassphraseConfigured) throw new Error('Device credential missing; recovery required.');
-        if (!credentialSetupRequired || !confirmation) throw new Error('Passphrase setup is required for this enrolled device.');
-        if (passphrase !== confirmation) throw new Error('The two passphrase entries do not match.');
-        await establishAccessPassphrase(deviceId, passphrase);
+        if (!credentialSetupRequired || !confirmation) throw new Error('Sign-in credential setup is required for this enrolled device.');
+        if (passphrase !== confirmation) throw new Error('The two password entries do not match.');
+        if (username || inviteCredentials) {
+          await establishAccessCredential(deviceId, username || inviteCredentials!.username, passphrase);
+        } else {
+          await establishAccessPassphrase(deviceId, passphrase);
+        }
         await saveEnrollmentSession({ ...gate.session, accessPassphraseConfigured: true });
         setCredentialSetupRequired(false);
-        setSignInError('Device protected. Enter your passphrase to sign in.');
-        return; // Setting a passphrase never auto-unlocks.
+        setSignInError('Device protected. Sign in with your username and password.');
+        return; // Setting a credential never auto-unlocks.
       }
-      await requireAccessPassphrase(deviceId, passphrase);
+      if (configuredUsername) {
+        const result = await requireAccessCredential(deviceId, username, passphrase);
+        setRotationRequired(result.mustRotate);
+      } else {
+        await requireAccessPassphrase(deviceId, passphrase);
+      }
       await hydrateEncryptedFeed(gate.session);
       setSession(gate.session);
       setDeviceKeys(gate.keys);
+      setLoginUsername(username || configuredUsername || '');
       setLockReason(null);
       setBootPhase('enrolled');
     } catch (error) {
@@ -878,6 +905,7 @@ export default function App() {
         error={signInError}
         busy={signInBusy}
         credentialSetupRequired={credentialSetupRequired}
+        username={inviteCredentials?.username || loginUsername}
         onSignIn={handleSignIn}
         onCreatePrivateLine={() => { setLockReason(null); setBootPhase('owner-setup'); }}
         onJoinFamily={() => { setLockReason(null); setBootPhase('member-join'); }}
@@ -1115,6 +1143,37 @@ export default function App() {
           onResetLocalDevice={handleResetLocalDevice}
           onClose={() => setSecuritySheetOpen(false)}
         />
+      )}
+
+      {bootPhase === 'enrolled' && rotationRequired && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+          <form onSubmit={async (e) => {
+            e.preventDefault();
+            setRotationError(null);
+            try {
+              await rotateAccessCredential(deviceKeys!.deviceId, currentPassword || inviteCredentials?.temporaryPassword || '', newPassword);
+              setRotationRequired(false);
+              setNewPassword('');
+              setCurrentPassword('');
+              setCommState('Password updated — your room is open.');
+            } catch (err) {
+              setRotationError(err instanceof Error ? err.message : 'Could not change password.');
+            }
+          }} className="w-full max-w-md rounded-2xl border border-amber-400/30 bg-[#0D1625] p-5 flex flex-col gap-3">
+            <h2 className="font-display text-lg font-bold text-slate-100">First login — change your password</h2>
+            <p className="text-xs text-slate-400">Your temporary invite password must be replaced before the room opens.</p>
+            <input type="password" required value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)}
+              placeholder="Current temporary password" aria-label="Current password"
+              className="min-h-[46px] rounded-xl bg-black/40 border border-white/10 px-3 text-sm text-slate-100" />
+            <input type="password" required minLength={12} value={newPassword} onChange={(e) => setNewPassword(e.target.value)}
+              placeholder="New password (12+ characters)" aria-label="New password"
+              className="min-h-[46px] rounded-xl bg-black/40 border border-white/10 px-3 text-sm text-slate-100" />
+            {rotationError && <p className="text-xs text-rose-300">{rotationError}</p>}
+            <button type="submit" className="min-h-[46px] rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold">
+              Change password &amp; open room
+            </button>
+          </form>
+        </div>
       )}
 
       {canVideoRoom && (

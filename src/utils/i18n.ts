@@ -3,8 +3,8 @@ LEEWAY_HEADER - DO NOT REMOVE
 REGION: PRODUCT
 TAG: PRODUCT.LEEWAY_GLOBAL_P2P.I18N
 DISCOVERY_PIPELINE: Voice -> Intent -> Location -> Vertical -> Ranking -> Render
-WHO: LeeWay Creator / LeeWay Global P2P engineering
-WHAT: Governed LeeWay Global P2P source: src\utils\i18n.ts
+WHO: LeeWay Creator / LeeWay Global Family Connect engineering
+WHAT: Governed LeeWay Global Family Connect source: src\utils\i18n.ts
 WHEN: 2026-11-24
 WHERE: agentlee2116-ctrl/Leeway-Global-P2P/src/utils/i18n.ts
 WHY: Offline-first LeeWay walkie-talkie dispatch for families across regions
@@ -148,7 +148,7 @@ export interface Translations {
 }
 
 const EN_BASE: Translations = {
-  appName: 'LeeWay Global P2P',
+  appName: 'LeeWay Global Family Connect',
   e2eeSecured: 'E2EE Secured',
   allGood: 'All Good',
   queuedOffline: 'Queued Offline',
@@ -237,7 +237,7 @@ function withBase(overrides: Partial<Translations>): Translations {
 export const I18N: Record<LangCode, Translations> = {
   en: EN_BASE,
   es: {
-    appName: 'LeeWay Global P2P',
+    appName: 'LeeWay Global Family Connect',
     e2eeSecured: 'Cifrado E2EE',
     allGood: 'Conectado',
     queuedOffline: 'En cola offline',
@@ -319,7 +319,7 @@ export const I18N: Record<LangCode, Translations> = {
     waitingOwnerApproval: 'Esperando aprobación del organizador',
   },
   fr: {
-    appName: 'LeeWay Global P2P',
+    appName: 'LeeWay Global Family Connect',
     e2eeSecured: 'Chiffré E2EE',
     allGood: 'Connecté',
     queuedOffline: 'En attente',
@@ -400,7 +400,7 @@ export const I18N: Record<LangCode, Translations> = {
     waitingOwnerApproval: "En attente d'approbation",
   },
   ar: {
-    appName: 'LeeWay Global P2P',
+    appName: 'LeeWay Global Family Connect',
     e2eeSecured: 'تشفير E2EE',
     allGood: 'متصل',
     queuedOffline: 'في الانتظار',
@@ -479,7 +479,7 @@ export const I18N: Record<LangCode, Translations> = {
     waitingOwnerApproval: 'بانتظار موافقة المنظم',
   },
   zh: {
-    appName: 'LeeWay Global P2P',
+    appName: 'LeeWay Global Family Connect',
     e2eeSecured: '端到端加密',
     allGood: '连接正常',
     queuedOffline: '离线排队',
