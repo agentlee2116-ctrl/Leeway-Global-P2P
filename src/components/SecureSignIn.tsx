@@ -14,6 +14,7 @@ LICENSE: Existing repository terms; original logo rights are not newly asserted
 import { useState, type FormEvent } from 'react';
 import { ArrowRight, KeyRound, LockKeyhole, UserPlus, Users } from 'lucide-react';
 import { LanguageDropdown } from './LanguageDropdown';
+import { InstallButton } from './InstallButton';
 import { LeeWayLogo } from './LeeWayLogo';
 import type { LangCode, Translations } from '../utils/i18n';
 
@@ -123,8 +124,11 @@ export function SecureSignIn({
       <div className="relative mx-auto max-w-6xl px-4 pb-10 pt-5 sm:px-8">
         <div className="flex items-center justify-between gap-3">
           <LeeWayLogo size="sm" showWordmark wordmarkText={t.appName} />
-          <LanguageDropdown id="leeway-signin-language" label={t.langLabel} value={lang}
-            onChange={onChangeLang} variant="compact" />
+          <div className="flex flex-col items-end gap-2">
+            <LanguageDropdown id="leeway-signin-language" label={t.langLabel} value={lang}
+              onChange={onChangeLang} variant="compact" />
+            <InstallButton compact />
+          </div>
         </div>
         <div className="mt-8 grid min-h-[min(740px,80dvh)] grid-cols-1 items-center gap-7 lg:grid-cols-12 lg:gap-12">
           <section className="lg:col-span-5">

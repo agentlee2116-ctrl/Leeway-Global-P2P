@@ -26,6 +26,7 @@ import {
 } from '../utils/enrollmentCrypto';
 import type { LangCode, Translations } from '../utils/i18n';
 import { LanguageDropdown } from './LanguageDropdown';
+import { InstallButton } from './InstallButton';
 
 interface OnboardingWelcomeProps {
   t: Translations;
@@ -193,6 +194,8 @@ export function OnboardingWelcome({
                   variant="full"
                 />
               </div>
+
+              <InstallButton />
 
               {/* Dual-Path Choices */}
               <div className="flex flex-col gap-3">

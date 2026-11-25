@@ -44,7 +44,9 @@ export interface BridgeCallbacks {
   onState: (state: RelayState | 'offline', detail: string) => void;
 }
 
-const DEFAULT_RELAY = 'ws://localhost:8787';
+/* No implicit localhost: on a phone that points at the phone itself. A relay
+ * must be configured explicitly, otherwise dispatches remain queued offline. */
+const DEFAULT_RELAY = '';
 
 export class SecureCommsBridge {
   readonly store = new IndexedDbMessageStore();
@@ -77,6 +79,11 @@ export class SecureCommsBridge {
 
   connect(): void {
     const url = this.params.relayUrl || localStorage.getItem('lwp.relayUrl') || DEFAULT_RELAY;
+    if (!url) {
+      this.relayState = 'offline';
+      this.callbacks.onState('offline', 'No relay configured — encrypted dispatches queue locally');
+      return;
+    }
     this.relay?.close();
     const relay = new RelayClient({
       url,

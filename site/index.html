@@ -33,10 +33,22 @@ HOW: Governed source reusing LeeWay contracts; no competing authority; evidence-
   <p class="tag">Offline-first <strong>walkie-talkie dispatch</strong> for the LeeWay ecosystem: text dispatches, push-to-talk voice bursts, photo and video snaps, and store-and-forward bundles. Sixty-plus selectable interface languages. Built on local mesh, community mesh and authorized satellite gateways — not on carrier subscriptions.</p>
 
   <div class="card row">
-    <a class="btn" href="./app/">Launch the web / PWA app</a>
+    <a class="btn" href="./app/">Open &amp; install the app</a>
     <a class="btn" href="./downloads/leeway-global-p2p-v1.0.0-release.apk" download>Download signed Android APK</a>
     <img class="qr" src="./leeway-qr.png" alt="QR code for the signed APK download URL" />
+    <p id="os-install-hint" class="muted" style="width:100%">Choose your device: iPhone/iPad use Safari → Share → Add to Home Screen. Android/Windows/Mac/Linux open the app and use your browser's install option.</p>
   </div>
+  <script>
+    (function () {
+      var ua = navigator.userAgent || '';
+      var hint = document.getElementById('os-install-hint');
+      if (/iPad|iPhone|iPod/.test(ua)) hint.textContent = 'iPhone/iPad: open the app in Safari, tap Share → Add to Home Screen, then tap Add.';
+      else if (/Android/.test(ua)) hint.textContent = 'Android: tap Download signed Android APK, or open the app in Chrome and install it.';
+      else if (/Windows/.test(ua)) hint.textContent = 'Windows: open the app in Edge or Chrome and use the browser install button.';
+      else if (/Macintosh/.test(ua) && !/iPhone|iPad/.test(ua)) hint.textContent = 'Mac: open the app in Safari or Chrome and use Add to Home Screen / Install.';
+      else if (/Linux/.test(ua)) hint.textContent = 'Linux: open the app in Chrome or Firefox and install it as a PWA if supported.';
+    })();
+  </script>
 
   <h2>Install</h2>
   <div class="card">

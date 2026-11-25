@@ -54,6 +54,7 @@ export function FamilySharePanel({ t, session, deviceKeys, onUpdateSession, onNo
   const [busy, setBusy] = useState(false);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [relayUrl, setRelayUrl] = useState(() => localStorage.getItem('lwp.relayUrl') ?? '');
   const authority = session.authority;
   const circleName = authority?.circleName ?? session.circleName;
   const isOwner = session.role === 'owner';
@@ -280,6 +281,23 @@ export function FamilySharePanel({ t, session, deviceKeys, onUpdateSession, onNo
               </p>
             </div>
           )}
+
+          <div className="border-t border-white/[0.07] pt-3 flex flex-col gap-2">
+            <span className="text-xs font-semibold text-slate-300">Cross-device relay (optional)</span>
+            <div className="flex flex-wrap gap-2">
+              <input value={relayUrl} onChange={(e) => setRelayUrl(e.target.value)}
+                placeholder="wss://your-relay.example"
+                aria-label="WebSocket relay URL"
+                className="min-w-0 flex-1 min-h-[40px] rounded-xl bg-black/40 border border-white/10 px-3 text-xs text-slate-100" />
+              <button type="button" onClick={() => {
+                localStorage.setItem('lwp.relayUrl', relayUrl.trim());
+                onNotice(relayUrl.trim() ? 'Relay saved — reload to connect.' : 'Relay cleared — messages queue locally.');
+              }} className="min-h-[40px] px-3 rounded-xl bg-white/[0.06] border border-white/10 text-xs text-slate-100">
+                Save relay
+              </button>
+            </div>
+            <p className="text-[11px] text-slate-400">Without a reachable relay, messages stay encrypted on this device until a link opens. Do not use localhost on a phone.</p>
+          </div>
 
           <div className="border-t border-white/[0.07] pt-3 flex flex-col gap-2">
             <span className="text-xs font-semibold text-slate-300">Revoke access</span>
